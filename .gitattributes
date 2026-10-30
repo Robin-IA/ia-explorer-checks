@@ -1,0 +1,9 @@
+# Normalize text to LF in the index and working tree everywhere, so the repo
+# diffs cleanly regardless of who checks it out.
+* text=auto eol=lf
+
+*.png  binary
+*.jpg  binary
+*.gif  binary
+*.pdf  binary
+*.zip  binary
