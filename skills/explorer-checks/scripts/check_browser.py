@@ -126,24 +126,15 @@ def check_page(context, url, axe, findings):
             source="chromium"))
 
     page.add_script_tag(content=axe)
-    result = page.evaluate(
-        "tags => axe.run(document, {runOnly: {type: 'tag', values: tags}, "
-        "resultTypes: ['violations', 'incomplete']})", AXE_TAGS)
-    for kind in ("violations", "incomplete"):
-        for v in result[kind]:
-            wcag = ", ".join(_criteria(v["tags"]))
-            status = ("review" if kind == "incomplete"
-                      else "fail" if wcag else "advisory")
-            targets = [" ".join(map(str, n["target"])) for n in v["nodes"]]
-            findings.append(Finding(
-                "accessibility", status, f"axe:{v['id']}", v["help"],
-                where=f"{here} {v['id']}",
-                evidence=f"{len(targets)} element(s): " +
-                         "; ".join(targets[:5]) +
-                         (f"\n{v['nodes'][0].get('failureSummary', '')}"
-                          if v["nodes"] else ""),
-                fix=f"{v['description']} See {v['helpUrl']}",
-                source=f"axe-core {AXE_VERSION}", wcag=wcag, key=kind))
+    run_axe(page, here, {"type": "tag", "values": AXE_TAGS}, "", findings)
+    # A page with a dark theme is two pages as far as contrast goes, and
+    # whichever the visitor's system prefers is the one they get. Only the
+    # colour rules are re-run; nothing else changes with the scheme.
+    if page.evaluate(HAS_DARK_JS):
+        page.emulate_media(color_scheme="dark")
+        run_axe(page, here, {"type": "rule", "values": DARK_RULES}, "dark",
+                findings)
+        page.emulate_media(color_scheme="light")
 
     check_focus(page, here, findings)
     page.close()
@@ -163,6 +154,37 @@ def check_page(context, url, axe, findings):
                 "320px. Data tables may scroll inside their own container.",
             source="explorer-checks", wcag="1.4.10"))
     narrow.close()
+
+
+DARK_RULES = ["color-contrast", "link-in-text-block"]
+HAS_DARK_JS = """() => [...document.styleSheets].some(sheet => {
+  try {
+    return [...sheet.cssRules].some(r =>
+      r.media && /prefers-color-scheme:\\s*dark/.test(r.media.mediaText));
+  } catch (e) { return false }  // a cross-origin sheet (Google Fonts)
+})"""
+
+
+def run_axe(page, here, run_only, scheme, findings):
+    result = page.evaluate(
+        "o => axe.run(document, {runOnly: o, "
+        "resultTypes: ['violations', 'incomplete']})", run_only)
+    suffix = f" ({scheme} mode)" if scheme else ""
+    for kind in ("violations", "incomplete"):
+        for v in result[kind]:
+            wcag = ", ".join(_criteria(v["tags"]))
+            status = ("review" if kind == "incomplete"
+                      else "fail" if wcag else "advisory")
+            targets = [" ".join(map(str, n["target"])) for n in v["nodes"]]
+            findings.append(Finding(
+                "accessibility", status, f"axe:{v['id']}",
+                v["help"] + suffix, where=f"{here} {v['id']}{suffix}",
+                evidence=f"{len(targets)} element(s): " +
+                         "; ".join(targets[:5]) +
+                         (f"\n{v['nodes'][0].get('failureSummary', '')}"
+                          if v["nodes"] else ""),
+                fix=f"{v['description']} See {v['helpUrl']}",
+                source=f"axe-core {AXE_VERSION}", wcag=wcag, key=kind))
 
 
 FOCUS_JS = """() => {
@@ -246,11 +268,11 @@ def main():
     base = args.base_url
     if not base:
         server, base = serve(root)
-    pages = args.page or discover_pages(root)
+    # "./" is the base URL itself. An empty --page means the same thing, but
+    # it would show in the report as no page at all.
+    pages = [p or "./" for p in args.page] or discover_pages(root) or ["./"]
     capped = len(pages) > MAX_PAGES
     pages = pages[:MAX_PAGES]
-    if not pages:
-        pages = [""]
 
     findings = []
     axe = axe_source()

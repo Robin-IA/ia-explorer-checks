@@ -56,7 +56,8 @@ every remote. Then:
 
 Pick the pages. The script discovers HTML files, but an app's routes are not
 files, and a static repo may hold HTML no visitor sees. Pass the real entry
-points with `--page` (repeatable), for example `--page mockup/`.
+points with `--page` (repeatable), for example `--page mockup/`, or
+`--page ./` for the site root.
 
 ## 3. Run the automated checks
 
