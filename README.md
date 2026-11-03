@@ -88,6 +88,15 @@ is the trial run against the Federal Pandemic Record mockup at commit
 accessibility on the keyboard and labelling items), so it shows the format
 and is not a complete audit. It was not pushed to that repository.
 
+## Keeping the checks current
+
+Once a week, a scheduled Claude Code task reads the sources in
+[watch/sources.md](watch/sources.md): OWASP standards, vulnerability feeds,
+reference scanners, axe-core and WCAG. It compares what changed against what
+the checks pin and cite. Each change the checks need becomes an issue
+labelled `watch`. The task does not edit the checks itself. To watch
+something else, add it to that file.
+
 ## Tests
 
 ```bash
