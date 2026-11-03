@@ -11,8 +11,10 @@ Three checks, one report, re-run until it passes:
    real errors, the project's own tests pass, local links resolve, and the
    page loads without JavaScript errors or failed requests.
 2. **Code security**: no credentials in the repository, every place a
-   string becomes markup has been traced, dependencies have no known
-   vulnerabilities, and the Python passes bandit.
+   string becomes markup has been traced, dependencies are pinned and have
+   no known vulnerabilities, the Python passes bandit, and the checklist in
+   `references/security-review.md` is complete. Every finding and item
+   names its OWASP Top 10:2025 category and ASVS 5.0.0 chapter.
 3. **Accessibility**: axe-core finds no WCAG 2.0/2.1/2.2 A or AA violation,
    the page reflows at 320 px, focus is visible, and the manual checklist
    in `references/wcag-manual-review.md` is complete.
@@ -197,7 +199,8 @@ At the end, in this order:
    what failed.
 3. The PR link.
 4. What you could not check, such as an app that would not start, pages
-   behind a login, or npm dependencies with no npm available.
+   behind a login, npm dependencies with no npm available, or the host a
+   self-hosted explorer runs on.
 
 Say it plainly. A check that did not run did not pass.
 

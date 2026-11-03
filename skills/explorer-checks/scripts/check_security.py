@@ -41,8 +41,13 @@ SECRETS = [
 # Assignment of a literal to something named like a credential. Weaker
 # evidence, so it goes to review rather than straight to fail.
 NAMED_SECRET = re.compile(
-    r"""(?i)\b[\w-]*(?:api[_-]?key|secret|passwd|password|access[_-]?token|"""
-    r"""auth[_-]?token)\b\s*[:=]\s*["']([^"'\s]{8,})["']""")
+    # secret[_-]?key first: Flask's SECRET_KEY has no word boundary after
+    # "secret", so the bare alternative never matched it. The optional
+    # quote and bracket after the name catch app.config["SECRET_KEY"] = and
+    # JSON's "password": forms.
+    r"""(?i)\b[\w-]*(?:api[_-]?key|secret[_-]?key|secret|passwd|password|"""
+    r"""access[_-]?token|"""
+    r"""auth[_-]?token)\b["']?\]?\s*[:=]\s*["']([^"'\s]{8,})["']""")
 PLACEHOLDER = re.compile(r"(?i)^(?:x+|\*+|changeme|example|your[_-]|<|\$\{|"
                          r"\{\{|os\.environ|process\.env|placeholder|dummy)")
 
@@ -230,6 +235,97 @@ def run_dependency_audit(root, findings):
             source="explorer-checks"))
 
 
+REQ_LINE = re.compile(r"^\s*([A-Za-z0-9][A-Za-z0-9._-]*)(\[[^\]]*\])?\s*(.*)$")
+USES = re.compile(r"""^\s*-?\s*uses:\s*["']?([^\s"'#]+)@([^\s"'#]+)""", re.M)
+FULL_SHA = re.compile(r"^[0-9a-f]{40}$")
+
+
+def check_pins(root, findings):
+    """Requirements without an exact version. pip-audit checks what it
+    would install today, so an unpinned file passes the audit and then
+    installs something else next month."""
+    for req in sorted(root.glob("requirements*.txt")):
+        loose = []
+        for line in (read_text(req) or "").splitlines():
+            line = line.split("#", 1)[0].strip()
+            if not line or line.startswith("-") or "://" in line:
+                continue
+            m = REQ_LINE.match(line)
+            if m and "==" not in m.group(3):
+                loose.append(m.group(1))
+        if loose:
+            findings.append(Finding(
+                "security", "advisory", "supply:unpinned",
+                f"{len(loose)} requirement(s) without an exact version in "
+                f"{req.name}", where=rel(root, req), key=req.name,
+                evidence=", ".join(loose)[:300],
+                fix="Pin each to the version tested (name==1.2.3), for "
+                    "example from `pip freeze`, so the audit and the "
+                    "deployment install the same thing.",
+                source="explorer-checks"))
+
+
+def check_actions(root, findings):
+    """GitHub Actions referenced by a tag or branch, which the action's
+    owner can move to different code."""
+    for wf in sorted((root / ".github" / "workflows").glob("*.y*ml")):
+        text = read_text(wf) or ""
+        for m in USES.finditer(text):
+            action, ref = m.group(1), m.group(2)
+            if action.startswith(("./", "docker://")) or FULL_SHA.match(ref):
+                continue
+            findings.append(Finding(
+                "security", "advisory", "supply:action-unpinned",
+                f"Workflow uses {action}@{ref}, a movable reference",
+                where=f"{rel(root, wf)}:{line_of(text, m.start())}",
+                key=f"{action}@{ref}",
+                fix=f"Pin to the full commit SHA of {ref}, with the tag in a "
+                    f"comment: uses: {action}@<40-hex sha>  # {ref}",
+                source="explorer-checks"))
+
+
+GITHUB_REMOTE = re.compile(r"github\.com[:/]([\w.-]+)/([\w.-]+?)(?:\.git)?/?$")
+
+
+def check_pages(root, findings):
+    """A private repository with GitHub Pages publishes the served folder to
+    everyone on most plans, so code and notes meant to stay private go out
+    with the site. Needs the gh CLI; without it the check is named as not
+    done rather than passed."""
+    remotes = subprocess.run(["git", "-C", str(root), "remote", "-v"],
+                             capture_output=True, text=True).stdout
+    repos = sorted({m.group(1, 2) for line in remotes.splitlines()
+                    for m in [GITHUB_REMOTE.search(line.split()[1])
+                              if len(line.split()) > 1 else None] if m})
+    for owner, name in repos:
+        try:
+            r = subprocess.run(
+                ["gh", "api", f"repos/{owner}/{name}", "-q",
+                 '"\\(.private) \\(.has_pages)"'],
+                capture_output=True, text=True, timeout=60)
+        except (OSError, subprocess.TimeoutExpired) as e:
+            r = subprocess.CompletedProcess([], 1, "", str(e))
+        if r.returncode != 0:
+            findings.append(Finding(
+                "security", "advisory", "pages:not-checked",
+                f"Could not read {owner}/{name} from GitHub, so Pages "
+                f"visibility was not checked", key=f"{owner}/{name}",
+                evidence=(r.stderr or "").strip()[:200],
+                fix="Install and log in to the gh CLI, then re-run.",
+                source="explorer-checks"))
+            continue
+        private, pages = r.stdout.strip().split()
+        if private == "true" and pages == "true":
+            findings.append(Finding(
+                "security", "review", "pages:private-repo-published",
+                f"{owner}/{name} is private but serves a GitHub Pages site",
+                key=f"{owner}/{name}",
+                fix="Everything in the Pages folder is public. Either that "
+                    "is intended (clear it, saying so), or serve from a "
+                    "folder that holds only the site, or turn Pages off.",
+                source="explorer-checks"))
+
+
 META_CSP = re.compile(
     r"""<meta\b[^>]*http-equiv\s*=\s*["']?content-security-policy""", re.I)
 
@@ -299,6 +395,9 @@ def main():
     scan_text(root, findings)
     run_bandit(root, findings)
     run_dependency_audit(root, findings)
+    check_pins(root, findings)
+    check_actions(root, findings)
+    check_pages(root, findings)
     if args.live_url:
         check_headers(args.live_url, findings, root)
     write_findings(args.out, findings, {"check": "security"})

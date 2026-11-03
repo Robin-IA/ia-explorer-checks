@@ -48,12 +48,15 @@ class Finding:
     wcag: str = ""     # success criteria, accessibility only
     key: str = ""      # tells apart findings sharing rule and place
     id: str = ""
+    owasp: str = ""    # Top 10:2025 category and ASVS 5.0 chapter, security
 
     def __post_init__(self):
         if self.check not in CHECKS:
             raise ValueError(f"unknown check {self.check!r}")
         if self.status not in STATUSES:
             raise ValueError(f"unknown status {self.status!r}")
+        if self.check == "security" and not self.owasp:
+            self.owasp = owasp_for(self.rule)
         if not self.key and LINE_NO.search(self.where):
             first = self.evidence.strip().splitlines()
             self.key = first[0] if first else self.title
@@ -62,6 +65,42 @@ class Finding:
 
 
 LINE_NO = re.compile(r":\d+$")
+
+# Where each security rule sits in the OWASP Top 10:2025 and ASVS 5.0.0.
+# Checked against the Top 10:2025 pages' own CWE lists and the ASVS 5.0
+# chapter texts on 2026-11-03: CWE-798 hard-coded credentials is A07,
+# CWE-79/78/89 injection A05, CWE-829 untrusted (CDN) code A08, CWE-319
+# cleartext A04, CWE-22 path traversal and CWE-200 exposure A01. Chapters
+# only, never requirement numbers, which move between ASVS versions.
+# First match wins; a rule with no entry carries no tag.
+OWASP = [
+    ("secret:", "A07:2025 · ASVS V13"),
+    ("dom:", "A05:2025 · ASVS V1"),
+    ("jquery:", "A05:2025 · ASVS V1"),
+    ("flask:", "A05:2025 · ASVS V1"),
+    ("resource:http", "A04:2025 · ASVS V12"),
+    ("resource:no-sri", "A08:2025 · ASVS V3"),
+    ("link:", "ASVS V3"),
+    ("live:", "A02:2025 · ASVS V3"),
+    ("dep:", "A03:2025 · ASVS V15"),
+    ("supply:", "A03:2025 · ASVS V15"),
+    ("pages:", "A01:2025 · ASVS V13"),
+    ("privacy:", "ASVS V3"),
+    ("bandit:B10", "A07:2025 · ASVS V13"),  # B105-B107 hard-coded passwords
+    ("bandit:B104", "A02:2025 · ASVS V13"),  # binds to all interfaces
+    ("bandit:B201", "A02:2025 · ASVS V13"),  # Flask debug
+    ("bandit:B301", "A08:2025 · ASVS V1"),  # pickle
+    ("bandit:B403", "A08:2025 · ASVS V1"),
+    ("bandit:B310", "A01:2025 · ASVS V1"),  # urlopen of any scheme
+    ("bandit:B32", "A04:2025 · ASVS V11"),  # weak hashes and ciphers
+    ("bandit:B50", "A04:2025 · ASVS V12"),  # TLS verification off
+    ("bandit:B60", "A05:2025 · ASVS V1"),  # subprocess and shell
+    ("bandit:B608", "A05:2025 · ASVS V1"),  # SQL built from strings
+]
+
+
+def owasp_for(rule):
+    return next((tag for prefix, tag in OWASP if rule.startswith(prefix)), "")
 
 
 def make_id(check, rule, where, key=""):
