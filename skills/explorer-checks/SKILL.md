@@ -157,7 +157,20 @@ If a later run stops passing, remove the note in the same branch
 
 ## What to tell the user
 
-At the end: the status, the count of must-fix items per check, the PR link,
-and what you could not check, such as an app that would not start, pages
-behind a login, or npm dependencies with no npm available. Say it plainly.
-A check that did not run did not pass.
+At the end, in this order:
+
+1. The status and the count of must-fix items per check.
+2. **A bulleted list of every must-fix item**, grouped by check. Give each
+   one line: what is wrong, in plain words, then how you would fix it
+   ("Search box has no visible label → add a `<label for="q">`"). Take
+   both from the report's titles and recommended fixes. Ids alone mean
+   nothing to the reader. A count without the list makes the user ask
+   what failed.
+3. The PR link.
+4. What you could not check, such as an app that would not start, pages
+   behind a login, or npm dependencies with no npm available.
+
+Say it plainly. A check that did not run did not pass.
+
+If you ask whether to apply the fixes, ask after the list, so the user
+knows what they are agreeing to.
