@@ -121,19 +121,40 @@ owners' call. Never merge it yourself, and never push to `main`.
 
 ## 6. Fixes
 
-Ask the user whether to apply the recommended fixes now. If yes:
+Ask the user whether to apply the recommended fixes now. If yes, work one
+check at a time, in this order: validity (if anything failed), then
+security, then accessibility. For each:
 
-- One commit per finding or per small group, with the ids in the message
-  (`Fix A-8498a4: add lang="en" to <html>`). The report and the history
-  then tell the same story.
+1. Run that check's script on its own, so the fixes start from what is
+   there now, not from the last report:
+
+   ```bash
+   python scripts/check_validity.py <repo> --out <dir>/validity.json
+   python scripts/check_security.py <repo> --out <dir>/security.json [--live-url URL]
+   python scripts/check_browser.py  <repo> --out <dir>/browser.json --page <path>
+   ```
+
+   `check_browser.py` carries the accessibility checks.
+2. Apply that check's fixes, and verify them in the browser where they
+   change behaviour (focus, keyboard, contrast).
+3. **One commit for the check**, listing each finding's id and its fix in
+   the message body (`Fix S-cd5758: escape …`). The report and the history
+   then tell the same story.
+
+Throughout:
+
 - Fix the cause, not the detector. A missing `lang` is fixed by adding
   `lang`, not by excluding the rule.
 - Things only the owners can decide (removing a feature, changing a data
   source, rotating a credential) stay in the report. Tell the user about
   them; do not guess.
 
-Then go back to step 3. Repeat until the report says passing, or until
-only owner decisions remain.
+Then go back to step 3 and re-run all three checks together. Repeat until
+the report says passing, or until only owner decisions remain.
+
+The report lists what was fixed by comparing with the report as last
+committed. If that is not the run to compare with, pass
+`--since <commit>` to `render_report.py`.
 
 ## 7. When it passes
 

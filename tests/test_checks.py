@@ -133,8 +133,30 @@ def test_report_lifecycle(tmp_path):
         sink.id: {"verdict": "cleared", "reason": "literals only"}}}
     text = render(tmp_path, [sink], review, report)
     assert "Status: passing" in text
-    assert "Fixed since the last run" in text and lang.id in text
+    assert "Fixed since the last run" in text
+    assert f"- `{lang.id}` no lang" in text
     assert "literals only" in text
+
+
+def test_fixed_list_survives_a_second_render(tmp_path):
+    # The pass step renders, adds the note, re-runs and renders again before
+    # committing. The second render must still compare with the committed one.
+    repo = tmp_path / "explorer"
+    repo.mkdir()
+    git = lambda *a: subprocess.run(["git", "-C", str(repo), *a], check=True,
+                                    capture_output=True)
+    git("init", "-q")
+    git("config", "user.email", "t@example.org")
+    git("config", "user.name", "t")
+    report = repo / "security-accessibility-checks.md"
+    lang = Finding("accessibility", "fail", "axe:html-has-lang", "no lang",
+                   where="/ html-has-lang", wcag="3.1.1")
+    render(tmp_path, [lang], {"manual": MANUAL}, report)
+    git("add", "-A")
+    git("commit", "-qm", "report")
+    render(tmp_path, [], {"manual": MANUAL}, report)
+    text = render(tmp_path, [], {"manual": MANUAL}, report)
+    assert "Status: passing" in text and f"- `{lang.id}` no lang" in text
 
 
 def test_no_manual_review_no_pass(tmp_path):
@@ -166,3 +188,21 @@ def test_note_only_when_passing(tmp_path):
 
     run("add_page_note.py", page, "--remove")
     assert "explorer-checks" not in page.read_text(encoding="utf-8")
+
+
+def test_note_on_page_without_footer_or_body(tmp_path):
+    # HTML lets a page leave out </body>; the covid explorer does.
+    page = tmp_path / "index.html"
+    bare = "<!doctype html><html lang=en><title>t</title><main>m</main>\n<script></script>\n"
+    page.write_text(bare, encoding="utf-8")
+    report = tmp_path / "r.md"
+    render(tmp_path, [], {"manual": MANUAL}, report)
+    url = "https://github.com/x/y/blob/main/security-accessibility-checks.md"
+    for _ in range(2):
+        run("add_page_note.py", page, "--report", report, "--report-url", url)
+    text = page.read_text(encoding="utf-8")
+    assert len(BLOCK.findall(text)) == 1
+    assert text.index("</main>") < text.index("<footer>") < text.index("<script>")
+
+    run("add_page_note.py", page, "--remove")
+    assert page.read_text(encoding="utf-8") == bare

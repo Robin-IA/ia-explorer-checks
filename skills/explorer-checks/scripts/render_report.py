@@ -5,8 +5,10 @@
 
 The report is one file at one path, passing or not, so a re-run replaces it
 and the explorer's history shows the progress. Its last line is a comment
-holding the open finding ids. The next run reads it to list what was fixed
-in between.
+holding the open finding ids and titles. The next run reads it to list
+what was fixed in between. "The last run" is the report as last committed,
+not the file on disk, so rendering twice before a commit (as the pass step
+does, after adding the page note) does not lose the list.
 
 review.json, written by Claude after reading the code:
 
@@ -32,10 +34,12 @@ import argparse
 import json
 import pathlib
 import re
+import subprocess
 
 from common import CHECKS, Finding, read_findings
 
 STATE = re.compile(r"<!-- explorer-checks:state (\{.*\}) -->")
+HEADING = re.compile(r"^### `([A-Z]-[0-9a-f]+(?:-\d+)?)` (.+)$", re.M)
 NAMES = {"validity": "Code validity", "security": "Code security",
          "accessibility": "Accessibility (WCAG 2.2 AA)"}
 NEEDS_MANUAL = {"security", "accessibility"}
@@ -54,8 +58,28 @@ def load_review(path):
 def previous_open(path):
     if not path.exists():
         return None
-    m = STATE.search(path.read_text(encoding="utf-8"))
-    return json.loads(m.group(1)) if m else None
+    return _state(path.read_text(encoding="utf-8"))
+
+
+def committed_open(path, ref="HEAD"):
+    """The state of the report as committed at ref, else as on disk."""
+    r = subprocess.run(["git", "-C", str(path.parent), "show",
+                        f"{ref}:./{path.name}"], capture_output=True,
+                       text=True, encoding="utf-8", errors="replace")
+    if r.returncode == 0:
+        return _state(r.stdout)
+    return previous_open(path)
+
+
+def _state(text):
+    m = STATE.search(text)
+    if not m:
+        return None
+    state = json.loads(m.group(1))
+    # Reports from before titles were kept in the state still have them in
+    # their headings.
+    state.setdefault("titles", dict(HEADING.findall(text)))
+    return state
 
 
 def apply_review(findings, review):
@@ -188,8 +212,10 @@ def render(meta, findings, cleared, review, prev):
             L += ["", "</details>", ""]
 
     if fixed:
-        L += ["## Fixed since the last run", "",
-              ", ".join(f"`{i}`" for i in fixed), ""]
+        titles = prev.get("titles", {})
+        L += ["## Fixed since the last run", ""]
+        L += [f"- `{i}` {titles.get(i, '')}".rstrip() for i in fixed]
+        L.append("")
 
     adv = [f for f in findings if f.status == "advisory"]
     if adv:
@@ -202,7 +228,8 @@ def render(meta, findings, cleared, review, prev):
         L.append("")
 
     state = {"passing": passing, "date": meta["date"],
-             "commit": meta.get("commit", ""), "open": open_ids}
+             "commit": meta.get("commit", ""), "open": open_ids,
+             "titles": {f.id: f.title for f in findings if f.id in open_ids}}
     L.append(f"<!-- explorer-checks:state {json.dumps(state)} -->")
     return "\n".join(line for line in L if line is not None) + "\n", passing
 
@@ -216,11 +243,13 @@ def main():
     ap.add_argument("findings")
     ap.add_argument("--review")
     ap.add_argument("--out", required=True)
+    ap.add_argument("--since", default="HEAD",
+                    help="commit whose report is 'the last run'")
     args = ap.parse_args()
     meta, findings = read_findings(args.findings)
     review = load_review(args.review)
     out = pathlib.Path(args.out)
-    prev = previous_open(out)
+    prev = committed_open(out, args.since)
     findings, cleared = apply_review(findings, review)
     text, passing = render(meta, findings, cleared, review, prev)
     out.write_text(text, encoding="utf-8", newline="\n")

@@ -11,9 +11,12 @@ passing should remove the note, since an out-of-date claim is worse than
 none.
 
 The note sits between marker comments, so re-running replaces it in place.
-It goes at the end of <footer> if the page has one, otherwise just before
-</body>. It inherits the page's text colour, so its contrast is whatever the
-page's contrast already is, and the page has just passed.
+It goes at the end of <footer> if the page has one. Otherwise it goes in a
+<footer> of its own, just after </main>, else just before </body>, else at
+the end of the file: HTML lets a page leave out </body>, and some explorers
+do. Its own <footer> keeps the note inside a landmark. It inherits the
+page's text colour, so its contrast is whatever the page's contrast already
+is, and the page has just passed.
 """
 
 import argparse
@@ -64,17 +67,27 @@ def main():
     note = NOTE.format(start=START, end=END, iso=day.isoformat(),
                        human=f"{day.day} {day:%B %Y}", url=args.report_url)
 
-    for closing in ("</footer>", "</body>"):
-        i = text.lower().rfind(closing)
-        if i != -1:
-            text = text[:i] + note + text[i:]
-            break
-    else:
-        sys.exit(f"{page} has neither </footer> nor </body>; place the note "
-                 f"by hand between the markers")
+    text, where = place(text, note)
     page.write_text(text, encoding="utf-8", newline="")
-    print(f"note added to {page} ({closing})")
+    print(f"note added to {page} ({where})")
     return 0
+
+
+def place(text, note):
+    low = text.lower()
+    i = low.rfind("</footer>")
+    if i != -1:
+        return text[:i] + note + text[i:], "end of <footer>"
+    note = note.replace(START + "\n", START + "\n<footer>\n").replace(
+        "\n" + END, "\n</footer>\n" + END)
+    i = low.rfind("</main>")
+    if i != -1:
+        i += len("</main>")
+        return text[:i] + "\n" + note.rstrip("\n") + text[i:], "after </main>"
+    i = low.rfind("</body>")
+    if i != -1:
+        return text[:i] + note + text[i:], "before </body>"
+    return text.rstrip("\n") + "\n" + note, "end of file"
 
 
 if __name__ == "__main__":
