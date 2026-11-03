@@ -47,6 +47,7 @@ NEEDS_MANUAL = {"security", "accessibility"}
 STANDARD = "WCAG 2.2 Level AA"
 # Met along with it, for the page note; the report says why.
 ALSO_MET = "WCAG 2.1 AA and 2.0 AA"
+SECURITY_REFS = "OWASP Top 10:2025 and ASVS 5.0.0"
 
 
 def load_review(path):
@@ -156,6 +157,7 @@ def render(meta, findings, cleared, review, prev):
     if meta.get("live_url"):
         L += [f"| Live site (headers) | {meta['live_url']} |"]
     L += [f"| Standard | {STANDARD} |",
+          f"| Security references | {SECURITY_REFS} |",
           f"| Tools | axe-core {meta.get('axe') or '—'}, html5lib, ruff, "
           f"bandit, pip-audit, headless Chromium |",
           f"| Reviewed by | {review.get('reviewer', 'not reviewed')} |",
@@ -184,7 +186,11 @@ def render(meta, findings, cleared, review, prev):
               "(no HTML parse errors, no duplicate ids).",
               "- These are the web content requirements of **Section 508** "
               "(US federal; WCAG 2.0 AA) and **EN 301 549** clause 9 "
-              "(WCAG 2.1 AA)."]
+              "(WCAG 2.1 AA).",
+              "- Security was checked against the OWASP Top 10:2025 risks "
+              "and ASVS 5.0.0 chapters that apply to an explorer; each "
+              "finding and checklist item names its category. That is not an "
+              "ASVS verification at any level."]
     L += ["", "## What a pass means", "",
           "Each check combines automated tools with a review of the code "
           "and pages against a written checklist. A pass means neither "
@@ -205,7 +211,8 @@ def render(meta, findings, cleared, review, prev):
             label = "Must fix" if f.status == "fail" else "Needs review"
             L += [f"### `{f.id}` {f.title}", "",
                   f"- **{label}** · found by {f.source}" +
-                  (f" · WCAG {f.wcag}" if f.wcag else ""),
+                  (f" · WCAG {f.wcag}" if f.wcag else "") +
+                  (f" · OWASP {f.owasp}" if f.owasp else ""),
                   f"- **Where:** `{f.where}`" if f.where else "", ""]
             if f.evidence:
                 L += ["```text", f.evidence.strip(), "```", ""]
@@ -240,10 +247,11 @@ def render(meta, findings, cleared, review, prev):
     if adv:
         L += [f"## Advisory ({len(adv)})", "",
               "Optional. These items never block a pass.", "",
-              "| Id | Check | Item | Where | Suggestion |",
-              "|---|---|---|---|---|"]
+              "| Id | Check | Item | Where | Reference | Suggestion |",
+              "|---|---|---|---|---|---|"]
         L += [f"| `{f.id}` | {f.check} | {_cell(f.title)} | `{f.where}` | "
-              f"{_cell(f.fix)} |" for f in adv]
+              f"{f.wcag and 'WCAG ' + f.wcag or f.owasp} | {_cell(f.fix)} |"
+              for f in adv]
         L.append("")
 
     state = {"passing": passing, "date": meta["date"],

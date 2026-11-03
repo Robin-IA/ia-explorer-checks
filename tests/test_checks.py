@@ -72,6 +72,41 @@ def test_security_finds_secret_and_sink(site, tmp_path):
     assert ("dom:innerHTML", "review") in found
 
 
+def test_security_findings_name_owasp(site, tmp_path):
+    out = tmp_path / "s.json"
+    run("check_security.py", site, "--out", out)
+    tags = {f.rule: f.owasp for f in read_findings(out)[1]}
+    assert tags["secret:aws-access-key"] == "A07:2025 · ASVS V13"
+    assert tags["dom:innerHTML"] == "A05:2025 · ASVS V1"
+
+
+def test_supply_chain_and_flask_secret(site, tmp_path):
+    (site / "requirements.txt").write_text(
+        "flask==3.0.3\nrequests>=2\n# a comment\nhtml5lib\n-r other.txt\n",
+        encoding="utf-8")
+    wf = site / ".github" / "workflows"
+    wf.mkdir(parents=True)
+    (wf / "ci.yml").write_text(
+        "jobs:\n  t:\n    steps:\n"
+        "      - uses: actions/checkout@v4\n"
+        "      - uses: actions/setup-python@" + "a" * 40 + "\n"
+        "      - uses: ./local-action\n", encoding="utf-8")
+    (site / "app.py").write_text(
+        'app.config["SECRET_KEY"] = "s3cr3t-value-123"\n', encoding="utf-8")
+    from check_security import check_actions, check_pins, scan_text
+    findings = []
+    check_pins(site, findings)
+    check_actions(site, findings)
+    scan_text(site, findings)
+    by_rule = {}
+    for f in findings:
+        by_rule.setdefault(f.rule, []).append(f)
+    assert by_rule["supply:unpinned"][0].evidence == "requests, html5lib"
+    assert [f.key for f in by_rule["supply:action-unpinned"]] == \
+        ["actions/checkout@v4"]
+    assert any("app.py" in f.where for f in by_rule["secret:named-literal"])
+
+
 def test_meta_csp_found(site):
     from check_security import meta_csp_pages
     assert meta_csp_pages(site) == []

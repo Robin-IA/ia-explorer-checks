@@ -8,7 +8,7 @@ three ways:
 | Check | Automated | Reviewed by Claude |
 |---|---|---|
 | **Code validity** | HTML parsing (html5lib), JSON, Python (ruff), the project's own tests, local links, JavaScript errors and failed requests on load | — |
-| **Code security** | credential patterns, markup sinks (`innerHTML` and kin), bandit, pip-audit, live response headers | every sink traced to its data, plus [a checklist](skills/explorer-checks/references/security-review.md) |
+| **Code security** | credential patterns, markup sinks (`innerHTML` and kin), bandit, pip-audit, unpinned requirements and workflow actions, third-party hosts each page contacts, Pages on a private repo, live response headers; every item tagged with its OWASP Top 10:2025 category and ASVS 5.0.0 chapter | every sink traced to its data, plus [a checklist](skills/explorer-checks/references/security-review.md) |
 | **Accessibility** | axe-core against WCAG 2.2 A/AA in headless Chromium, 320 px reflow, focus visibility | the AA criteria axe cannot settle, in [a checklist](skills/explorer-checks/references/wcag-manual-review.md) |
 
 It writes `security-accessibility-checks.md` into the explorer's repository,
@@ -17,12 +17,15 @@ each item with a recommended fix. Re-run after fixing, as often as it takes.
 Once all three checks pass, the skill adds a dated note to the explorer's
 page that links to the report:
 
-> Checked for accessibility (WCAG 2.2 AA), security and code validity on
-> 30 October 2026; no open issues. Read the report.
+> Meets WCAG 2.2 Level AA accessibility (and WCAG 2.1 AA and 2.0 AA),
+> checked 3 November 2026 by automated tests and manual review. Also passes
+> security and code validity checks. Read the report.
 
-The note says what was checked and when, not "WCAG conformant". Automated
-tools plus a code review cannot establish full conformance, and the report
-says so. A later run that stops passing removes the note.
+The note names the standards and the date checked. The report's "Standards
+met" section says how, and that it is a self-assessment: automated tools
+plus a code review find most problems, not all of them, and testing with
+people who use assistive technology is still worth doing. A later run that
+stops passing removes the note.
 
 ## Install
 

@@ -3,13 +3,15 @@
     python check_browser.py <repo> --out browser.json
         [--base-url http://localhost:5000] [--page mockup/] [--page about/]
 
-It writes two kinds of finding from one load per page:
+It writes three kinds of finding from one load per page:
 
 - **accessibility**: axe-core against WCAG 2.0/2.1/2.2 A and AA, plus a
   320 px reflow check (1.4.10) and a focus-visibility check (2.4.7). Those
   two are the cheap ones axe does not do.
 - **validity**: uncaught exceptions, console errors, failed requests, and
   JavaScript files that do not compile.
+- **security**: every third-party host the page contacts, since each one
+  learns who is visiting.
 
 With no --base-url, the repository root is served on a free local port.
 That is right for a static explorer, and it tests the checked-out branch, so
@@ -88,7 +90,8 @@ def check_page(context, url, findings):
     here = (parts.path or "/") + (f"#{parts.fragment}" if parts.fragment
                                   else "")
     page = context.new_page()
-    errors, failed = [], []
+    errors, failed, hosts = [], [], []
+    page.on("request", lambda r: hosts.append(urllib.parse.urlsplit(r.url)))
     page.on("pageerror", lambda e: errors.append(("exception", str(e))))
     page.on("console", lambda m: m.type == "error" and
             errors.append(("console", m.text)))
@@ -127,6 +130,23 @@ def check_page(context, url, findings):
             fix="Fix the path or ship the file." if own else
                 "A third-party resource failed; check it is still served, "
                 "or vendor it.",
+            source="chromium"))
+
+    # Each visitor's browser tells every host it contacts the visitor's IP
+    # address and the page they are on. Recorded from what the page
+    # actually requested, not from its source, so fonts pulled in by a
+    # stylesheet count too.
+    others = sorted({u.hostname for u in hosts if u.scheme in ("http", "https")
+                     and u[:2] != origin and u.hostname})
+    for host in others:
+        findings.append(Finding(
+            "security", "advisory", "privacy:third-party",
+            f"Page contacts a third party: {host}",
+            where=parts.path or "/", key=host,  # one document, every view
+            fix="Every visitor's IP address and the page they are on go to "
+                "this host. Serve the file from the explorer itself (fonts "
+                "and libraries can be vendored), or keep it and say so in "
+                "the review.",
             source="chromium"))
 
     run_axe(page, here, {"type": "tag", "values": AXE_TAGS}, "", findings)
@@ -294,6 +314,8 @@ def main():
     if server:
         server.shutdown()
 
+    # Views of one document report its third parties once, not per view.
+    findings = list({f.id: f for f in reversed(findings)}.values())[::-1]
     meta = {"check": "browser", "pages": pages, "axe": AXE_VERSION,
             "served_locally": server is not None, "capped": capped}
     write_findings(args.out, findings, meta)
