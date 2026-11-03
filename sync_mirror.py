@@ -63,6 +63,21 @@ def git(*args, check=False):
     return run("git", *args, check=check)
 
 
+def mirror_head():
+    """The mirror's main as last fetched, or None if it has none yet."""
+    r = git("rev-parse", "--verify", "--quiet", f"refs/remotes/{MIRROR}/main")
+    return r.stdout.strip() if r.returncode == 0 else None
+
+
+def mirror_status():
+    # A new, empty mirror has no main to count from, and counting anyway
+    # printed "mirror is  commit(s) behind".
+    if mirror_head() is None:
+        return "mirror is empty, so this is its first push"
+    behind = git("rev-list", "--count", f"{MIRROR}/main..main").stdout.strip()
+    return f"mirror is {behind} commit(s) behind"
+
+
 def conditions():
     """Every reason not to push, named. Empty list means it is safe."""
     problems = []
@@ -157,14 +172,11 @@ def main():
 
     git("fetch", "--quiet", MIRROR)
     local = git("rev-parse", "main").stdout.strip()
-    mirror = git("rev-parse", f"{MIRROR}/main").stdout.strip()
-    if local == mirror:
+    if mirror_head() == local:
         print("  mirror already matches main. Nothing to do.")
         return 0
 
-    behind = git("rev-list", "--count",
-                 f"{MIRROR}/main..main").stdout.strip()
-    print(f"  all conditions met; mirror is {behind} commit(s) behind")
+    print(f"  all conditions met; {mirror_status()}")
     if args.check:
         print("  --check given, so nothing pushed")
         return 0
