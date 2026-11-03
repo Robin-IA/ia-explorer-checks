@@ -31,6 +31,7 @@ tools miss too much for a clean tool run to count as a pass on its own.
 """
 
 import argparse
+import datetime
 import json
 import pathlib
 import re
@@ -43,6 +44,9 @@ HEADING = re.compile(r"^### `([A-Z]-[0-9a-f]+(?:-\d+)?)` (.+)$", re.M)
 NAMES = {"validity": "Code validity", "security": "Code security",
          "accessibility": "Accessibility (WCAG 2.2 AA)"}
 NEEDS_MANUAL = {"security", "accessibility"}
+STANDARD = "WCAG 2.2 Level AA"
+# Met along with it, for the page note; the report says why.
+ALSO_MET = "WCAG 2.1 AA and 2.0 AA"
 
 
 def load_review(path):
@@ -151,7 +155,7 @@ def render(meta, findings, cleared, review, prev):
           f"| Served from | {meta.get('served', '')} |"]
     if meta.get("live_url"):
         L += [f"| Live site (headers) | {meta['live_url']} |"]
-    L += ["| Standard | WCAG 2.2 level AA |",
+    L += [f"| Standard | {STANDARD} |",
           f"| Tools | axe-core {meta.get('axe') or '—'}, html5lib, ruff, "
           f"bandit, pip-audit, headless Chromium |",
           f"| Reviewed by | {review.get('reviewer', 'not reviewed')} |",
@@ -167,14 +171,29 @@ def render(meta, findings, cleared, review, prev):
             res += " (manual review not done)"
         L.append(f"| {NAMES[check]} | {res} | {x['fail']} | {x['review']} "
                  f"| {x['advisory']} |")
+    if passing:
+        L += ["", "## Standards met", "",
+              f"Checked {_day(meta['date'])} at commit `{commit}`, on the "
+              f"pages listed above:", "",
+              f"- **{STANDARD}**: every Level A and AA success criterion, by "
+              f"automated tests and a manual review of each criterion "
+              f"(checklists under each check below).",
+              "- **WCAG 2.1 Level AA** and **WCAG 2.0 Level AA**, which "
+              "WCAG 2.2 includes. 4.1.1 Parsing, dropped from 2.2 but still "
+              "in 2.0 and 2.1, is covered by the code validity check "
+              "(no HTML parse errors, no duplicate ids).",
+              "- These are the web content requirements of **Section 508** "
+              "(US federal; WCAG 2.0 AA) and **EN 301 549** clause 9 "
+              "(WCAG 2.1 AA)."]
     L += ["", "## What a pass means", "",
           "Each check combines automated tools with a review of the code "
           "and pages against a written checklist. A pass means neither "
-          "found anything open on the date and commit above. It is not a "
-          "formal WCAG conformance claim. Automated testing finds a minority "
-          "of accessibility barriers. Testing with people who use assistive "
-          "technology is still worth doing, and a change to the explorer "
-          "needs a re-run.", ""]
+          "found anything open on the date and commit above. The standards "
+          "are met as far as those checks can establish: it is a "
+          "self-assessment, not third-party certification. Automated "
+          "testing finds a minority of accessibility barriers. Testing with "
+          "people who use assistive technology is still worth doing, and a "
+          "change to the explorer needs a re-run.", ""]
 
     for check in CHECKS:
         L += [f"## {NAMES[check]}", ""]
@@ -232,6 +251,11 @@ def render(meta, findings, cleared, review, prev):
              "titles": {f.id: f.title for f in findings if f.id in open_ids}}
     L.append(f"<!-- explorer-checks:state {json.dumps(state)} -->")
     return "\n".join(line for line in L if line is not None) + "\n", passing
+
+
+def _day(iso):
+    d = datetime.date.fromisoformat(iso)
+    return f"{d.day} {d:%B %Y}"
 
 
 def _cell(s):

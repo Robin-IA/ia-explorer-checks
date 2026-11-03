@@ -4,11 +4,11 @@
                             --report-url https://github.com/<org>/<repo>/blob/main/security-accessibility-checks.md
     python add_page_note.py <page.html> --remove
 
-It refuses to add the note unless the report says passing. The note says
-what was checked and when, and links to the report. It does not claim
-conformance, because the checks cannot establish it. A run that stops
-passing should remove the note, since an out-of-date claim is worse than
-none.
+It refuses to add the note unless the report says passing. The note names
+the accessibility standards met, the date they were checked and how, and
+links to the report, whose "Standards met" and "What a pass means"
+sections give the detail and the limits. A run that stops passing should
+remove the note, since an out-of-date claim is worse than none.
 
 The note sits between marker comments, so re-running replaces it in place.
 It goes at the end of <footer> if the page has one. Otherwise it goes in a
@@ -25,15 +25,16 @@ import pathlib
 import re
 import sys
 
-from render_report import previous_open
+from render_report import ALSO_MET, STANDARD, previous_open
 
 START, END = "<!-- explorer-checks:note -->", "<!-- /explorer-checks:note -->"
 BLOCK = re.compile(re.escape(START) + r".*?" + re.escape(END) + r"\n?", re.S)
 
 NOTE = """{start}
 <p class="explorer-checks-note" style="font-size:0.875em;margin:1em 0 0">
-  Checked for accessibility (WCAG 2.2 AA), security and code validity on
-  <time datetime="{iso}">{human}</time>; no open issues.
+  Meets {standard} accessibility (and {also}), checked
+  <time datetime="{iso}">{human}</time> by automated tests and manual review.
+  Also passes security and code validity checks.
   <a href="{url}">Read the report</a>.
 </p>
 {end}
@@ -64,8 +65,9 @@ def main():
         sys.exit("the report does not say passing; not adding the note")
 
     day = datetime.date.fromisoformat(state["date"])
-    note = NOTE.format(start=START, end=END, iso=day.isoformat(),
-                       human=f"{day.day} {day:%B %Y}", url=args.report_url)
+    note = NOTE.format(start=START, end=END, standard=STANDARD, also=ALSO_MET,
+                       iso=day.isoformat(), human=f"{day.day} {day:%B %Y}",
+                       url=args.report_url)
 
     text, where = place(text, note)
     page.write_text(text, encoding="utf-8", newline="")

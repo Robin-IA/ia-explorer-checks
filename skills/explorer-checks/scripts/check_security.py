@@ -230,9 +230,22 @@ def run_dependency_audit(root, findings):
             source="explorer-checks"))
 
 
-def check_headers(url, findings):
+META_CSP = re.compile(
+    r"""<meta\b[^>]*http-equiv\s*=\s*["']?content-security-policy""", re.I)
+
+
+def meta_csp_pages(root):
+    """Pages in the checkout that set a CSP with <meta http-equiv>, the only
+    way a static host such as GitHub Pages can set one."""
+    return [rel(root, p) for p in repo_files(root, {".html", ".htm"})
+            if META_CSP.search(read_text(p) or "")]
+
+
+def check_headers(url, findings, root=None):
     """Response headers of the live site. Advisory: static hosts such as
-    GitHub Pages cannot set most of them."""
+    GitHub Pages cannot set most of them. A <meta> CSP in the checkout
+    counts, because the checkout is what is being checked and the live
+    site catches up when it is deployed."""
     if not url.startswith(("https://", "http://")):
         raise SystemExit(f"--live-url must be an http(s) URL, not {url!r}")
     try:
@@ -254,11 +267,16 @@ def check_headers(url, findings):
             "security", "fail", "live:no-https", "Live site served over http",
             where=final, fix="Serve over https and redirect http to it.",
             source="explorer-checks"))
+    meta = meta_csp_pages(root) if root else []
     for header, why in [
             ("content-security-policy", "limits the damage of any XSS that "
              "gets through; a <meta http-equiv> CSP works on static hosts"),
             ("x-content-type-options", "stops browsers guessing content "
-             "types")]:
+             "types. It has no <meta> form, so on a host that cannot set "
+             "headers (GitHub Pages) it stays open; the explorer's owners "
+             "decide whether that matters enough to change host")]:
+        if header == "content-security-policy" and meta:
+            continue
         if header not in headers:
             findings.append(Finding(
                 "security", "advisory", f"live:no-{header}",
@@ -282,7 +300,7 @@ def main():
     run_bandit(root, findings)
     run_dependency_audit(root, findings)
     if args.live_url:
-        check_headers(args.live_url, findings)
+        check_headers(args.live_url, findings, root)
     write_findings(args.out, findings, {"check": "security"})
     print(f"security: {len(findings)} finding(s)")
 

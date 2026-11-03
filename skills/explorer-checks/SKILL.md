@@ -59,6 +59,12 @@ files, and a static repo may hold HTML no visitor sees. Pass the real entry
 points with `--page` (repeatable), for example `--page mockup/`, or
 `--page ./` for the site root.
 
+**Pass every view.** axe checks only what is shown, so an explorer with
+tabs or views that show and hide sections has parts no tool has seen.
+If the page opens a view from the URL (`#pages`, `?view=pages`), pass one
+`--page` per view: `--page ./ --page ./#pages --page ./#about`. If it
+cannot, say so in the review and check the hidden views by hand.
+
 ## 3. Run the automated checks
 
 ```bash
@@ -180,7 +186,9 @@ If a later run stops passing, remove the note in the same branch
 
 At the end, in this order:
 
-1. The status and the count of must-fix items per check.
+1. The status and the count of must-fix items per check. On a pass, the
+   accessibility standards met and the date checked, as the report's
+   "Standards met" section gives them.
 2. **A bulleted list of every must-fix item**, grouped by check. Give each
    one line: what is wrong, in plain words, then how you would fix it
    ("Search box has no visible label → add a `<label for="q">`"). Take

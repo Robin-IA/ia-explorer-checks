@@ -79,10 +79,14 @@ class _QuietHandler(http.server.SimpleHTTPRequestHandler):
         pass
 
 
-def check_page(context, url, axe, findings):
+def check_page(context, url, findings):
     # Findings name the path, never the full URL: a locally served page gets
     # a new port every run, and the port would change every finding's id.
-    here = urllib.parse.urlsplit(url).path or "/"
+    # The fragment stays: an explorer that shows its views by #hash has one
+    # page per view as far as a visitor is concerned.
+    parts = urllib.parse.urlsplit(url)
+    here = (parts.path or "/") + (f"#{parts.fragment}" if parts.fragment
+                                  else "")
     page = context.new_page()
     errors, failed = [], []
     page.on("pageerror", lambda e: errors.append(("exception", str(e))))
@@ -125,7 +129,6 @@ def check_page(context, url, axe, findings):
                 "or vendor it.",
             source="chromium"))
 
-    page.add_script_tag(content=axe)
     run_axe(page, here, {"type": "tag", "values": AXE_TAGS}, "", findings)
     # A page with a dark theme is two pages as far as contrast goes, and
     # whichever the visitor's system prefers is the one they get. Only the
@@ -279,8 +282,12 @@ def main():
     with sync_playwright() as p:
         browser = p.chromium.launch()
         context = browser.new_context()
+        # An init script is outside the page's Content Security Policy,
+        # where an injected <script> tag is not. bypass_csp would also work,
+        # but it would hide a policy that breaks the explorer's own code.
+        context.add_init_script(script=axe)
         for path in pages:
-            check_page(context, urllib.parse.urljoin(base, path), axe,
+            check_page(context, urllib.parse.urljoin(base, path),
                        findings)
         check_js_syntax(context, root, findings)
         browser.close()

@@ -72,6 +72,15 @@ def test_security_finds_secret_and_sink(site, tmp_path):
     assert ("dom:innerHTML", "review") in found
 
 
+def test_meta_csp_found(site):
+    from check_security import meta_csp_pages
+    assert meta_csp_pages(site) == []
+    (site / "good.html").write_text(GOOD_PAGE.replace(
+        "<title>", '<meta http-equiv="Content-Security-Policy" '
+        "content=\"default-src 'self'\"><title>"), encoding="utf-8")
+    assert meta_csp_pages(site) == ["good.html"]
+
+
 def test_ids_are_stable_and_distinct():
     a = Finding("security", "review", "dom:innerHTML", "t", where="a.js:3",
                 evidence="el.innerHTML = x")
@@ -185,6 +194,8 @@ def test_note_only_when_passing(tmp_path):
     assert len(BLOCK.findall(text)) == 1
     assert text.index("explorer-checks:note") < text.index("</footer>")
     assert "30 October 2026" in text
+    assert "Meets WCAG 2.2 Level AA accessibility" in text
+    assert "## Standards met" in report.read_text(encoding="utf-8")
 
     run("add_page_note.py", page, "--remove")
     assert "explorer-checks" not in page.read_text(encoding="utf-8")
