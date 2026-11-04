@@ -32,7 +32,7 @@ from playwright.sync_api import sync_playwright
 
 from common import Finding, read_text, rel, repo_files, write_findings
 
-AXE_VERSION = "4.10.3"
+AXE_VERSION = "4.14.0"
 AXE_URL = f"https://cdn.jsdelivr.net/npm/axe-core@{AXE_VERSION}/axe.min.js"
 AXE_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa",
             "best-practice"]

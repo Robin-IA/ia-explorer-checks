@@ -67,7 +67,8 @@ the keyboard items.
   have a visible label, not only a placeholder.
 - **4.1.2 Name, role, value**: custom widgets (tabs, toggles,
   expanders) expose their role and state: `aria-selected`,
-  `aria-expanded`, `aria-pressed`.
+  `aria-expanded`, `aria-pressed`. axe checks that each `role="tab"` has
+  a name; whether the selected state follows the visible tab is yours.
 - **4.1.3 Status messages**: result counts and "loading" or "no results"
   messages are announced through `role="status"` or `aria-live="polite"`,
   without moving focus. This is the most common explorer failure.
