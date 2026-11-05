@@ -12,8 +12,8 @@ before you publish it, to catch problems first, or after, to check what is
 already live. It writes a report of everything to fix, with the fix, and
 asks before it changes anything.**
 
-You do not need to be a programmer. You ask Claude in plain English, and
-the first-time setup is the only part with steps to follow.
+This is meant to be a turnkey process to leverage tools to check for
+accessibility and security issues. Once set up, you just chat with Claude!
 
 - **This page** is the recipe. Follow it top to bottom the first time.
 - **[README.md](README.md)** is the reference: what each check covers and
