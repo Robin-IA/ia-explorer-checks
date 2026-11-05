@@ -236,3 +236,8 @@ watch has changed.
 ```bash
 python3 -m pytest
 ```
+
+## Credits
+
+Built by Robin Fay, Project Manager, Digital Collections, Democracy's
+Library.
