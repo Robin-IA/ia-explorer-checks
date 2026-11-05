@@ -206,36 +206,63 @@ committed. If that is not the run to compare with, pass
 
 The note puts a public statement on the explorer's page: the accessibility
 standards met, that it passes the security and code validity checks, the
-date checked, and a link to the report. Show the user the wording before
-asking, and ask where it should go:
+date checked, and a link to the report. Show the user the wording, then
+ask how they want it added. Three choices:
 
 - **Bottom** (the default): in the page's footer, where readers look for
   this kind of statement.
 - **Top**: the first thing in the main content, below the header and skip
   link, where every visitor sees it.
+- **I'll paste it in myself**: the owner adds it to their own code. You
+  give them the code and say exactly where it goes.
+
+At either position the note is small but readable: 0.875em of the
+surrounding text, held between 10 and 12 points
+(`clamp(0.8333rem, 0.875em, 1rem)`), in rem so it still grows when a
+reader enlarges text. Do not make it smaller.
 
 If the page already carries the note, it stays where it is unless the user
-asks to move it. Then:
+asks to move it.
 
-1. Add the note to each checked page:
+**Top or bottom.** Add the note to each checked page:
 
-   ```bash
-   "$PY" scripts/add_page_note.py ~/explorer-checks/<repo>/<page>.html \
-       --report ~/explorer-checks/<repo>/security-accessibility-checks.md \
-       --report-url https://github.com/<org>/<repo>/blob/main/security-accessibility-checks.md \
-       --position bottom   # or top
-   ```
+```bash
+"$PY" scripts/add_page_note.py ~/explorer-checks/<repo>/<page>.html     --report ~/explorer-checks/<repo>/security-accessibility-checks.md     --report-url https://github.com/<org>/<repo>/blob/main/security-accessibility-checks.md     --position bottom   # or top
+```
 
-   Leave `--position` off on a re-run to keep the note where it is; pass it
-   to move the note.
+Leave `--position` off on a re-run to keep the note where it is; pass it
+to move the note. Then **re-run steps 3 to 5.** The note is new markup on
+a page that has to stay passing, and the re-run also re-dates the report
+against the commit that carries the note.
 
-   For an app, put the note in the template that renders the footer, by
-   hand, between the same marker comments.
-2. **Re-run steps 3 to 5.** The note is new markup on a page that has to
-   stay passing. The re-run also re-dates the report against the commit
-   that carries the note.
+**I'll paste it in myself.** Ask whether they want it at the top or the
+bottom, then run the same command with `--print` added. It changes
+nothing, and prints the code and where it goes: the file, the line
+number, and the line it follows (or, if a note is already there, which
+lines to replace). Give the user, for each page:
 
-If a later run stops passing, remove the note in the same branch
+1. The file to open, in their own copy of the explorer.
+2. Where to put it, in words they can find: "directly after the line
+   `<main id="content">`, near line 6". Line numbers drift as files
+   change, so lead with the line it follows.
+3. The code, in one fenced `html` block they can copy whole, marker
+   comments included.
+4. What to do next: save, commit and push as they usually do, and then
+   ask for a re-run, so the report confirms the page still passes with
+   the note. Until that re-run, the report does not cover the note.
+
+For an **app** (Flask and the like), the page is a template: find the
+template that renders the main content or footer, and give the
+instructions for that file. A template's markup can differ from what
+`--print` reads in the served page, so read the template and name the
+spot yourself.
+
+When they paste it themselves, leave the note out of your own commits:
+the pull request carries the report and any fixes only. Say so before
+pushing.
+
+**On a later run,** the markers let the script refresh the date or take
+the note down. If a run stops passing, remove the note in the same branch
 (`add_page_note.py <page> --remove`) and tell the user you have. A stale
 claim is worse than none. The removal goes out with the next push.
 
@@ -264,3 +291,66 @@ End with:
    explorer's owners if that is not them. The report's claim is about the
    commit that was checked; changes before the merge need a re-run.
 3. Anything still open: owner decisions, and what could not be checked.
+
+## 11. Ask for feedback
+
+Every run ends by asking about the checker itself, whether the run passed,
+failed or stopped early. Ask in these words:
+
+> Did you encounter any issues with this tool or suggestions to make it better?
+>
+> Suggestion or issue:
+>
+> Name:
+
+The name is optional. If the user has nothing to say, or doesn't answer,
+end there.
+
+If they answer, file it as a feedback issue on the checker's repository,
+but first show them exactly what you would file and ask:
+
+- **Title**: `Feedback: ` and a few words from what they said.
+- **Body**, in the same sections the feedback form uses:
+
+  ```markdown
+  ### Your name
+
+  <their name, or _No response_>
+
+  ### What is this?
+
+  <Something went wrong / Feedback or a suggestion / A question>
+
+  ### Your feedback
+
+  <their words, as they gave them>
+
+  ### Which explorer or project were you checking?
+
+  <the explorer's GitHub address>
+
+  ### Skill version
+
+  <the contents of VERSION>
+  ```
+
+Say that `Robin-IA/ia-explorer-checks` is public, so the issue and their
+name will be public. Leave out anything private from their project, and
+add nothing they did not say. If something in this run went wrong because
+of the checker (a script failed, a check misfired, these instructions
+didn't fit), you may suggest adding a line about it, in your words, marked
+as yours, and only if they agree.
+
+On a yes, file it:
+
+```bash
+gh issue create --repo Robin-IA/ia-explorer-checks     --title "Feedback: …" --body-file <file>     --label feedback --assignee Robin-IA
+```
+
+Only the repository's collaborators can set a label or an assignee. If
+GitHub refuses them, file the issue again without `--label` and
+`--assignee`. It still lands in the repository's issues for the
+maintainer. Give the user the issue's link.
+
+If they would rather file it themselves, or later, give them the
+[feedback form](https://github.com/Robin-IA/ia-explorer-checks/issues/new?template=feedback.yml).

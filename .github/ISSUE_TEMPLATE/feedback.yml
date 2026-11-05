@@ -1,0 +1,59 @@
+name: Feedback or a problem
+description: Tell us what worked, what didn't, or what you'd like the accessibility and security checker to do.
+title: "Feedback: "
+labels: ["feedback"]
+assignees: ["Robin-IA"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for trying the checker. Everything here is optional except your feedback.
+
+        **This repository is public, so anything you type here can be seen by anyone**, including your name and email. You don't need to give either: your GitHub account already tells us who wrote this, and we'll reply here. Don't paste passwords, tokens or anything private from your project.
+  - type: input
+    id: name
+    attributes:
+      label: Your name
+      description: Optional, and public.
+    validations:
+      required: false
+  - type: input
+    id: email
+    attributes:
+      label: Your email
+      description: Optional, and public. Only if you'd like a reply by email as well as here.
+      placeholder: you@archive.org
+    validations:
+      required: false
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What is this?
+      options:
+        - Feedback or a suggestion
+        - Something went wrong
+        - A question
+    validations:
+      required: true
+  - type: textarea
+    id: feedback
+    attributes:
+      label: Your feedback
+      description: What happened, or what you'd like. If something went wrong, what did you ask Claude, and what did it say?
+    validations:
+      required: true
+  - type: input
+    id: explorer
+    attributes:
+      label: Which explorer or project were you checking?
+      description: Optional. A GitHub or live address helps us reproduce a problem.
+    validations:
+      required: false
+  - type: textarea
+    id: setup
+    attributes:
+      label: Setup output
+      description: Optional. For a setup problem, paste what `.venv/bin/python check_setup.py` prints.
+      render: text
+    validations:
+      required: false
