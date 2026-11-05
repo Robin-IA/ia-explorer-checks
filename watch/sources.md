@@ -17,7 +17,7 @@ Compare each source against these before deciding a change is needed.
 | axe-core version | `AXE_VERSION` in `skills/explorer-checks/scripts/check_browser.py` |
 | Tool versions (html5lib, playwright, ruff, bandit, pip-audit) | `requirements.txt` |
 | OWASP Top 10 and ASVS tags per rule | `OWASP` table in `skills/explorer-checks/scripts/common.py` |
-| Security checklist | `skills/explorer-checks/references/security-review.md` |
+| Security checklist, including the AISVS version and chapters on its AI items | `skills/explorer-checks/references/security-review.md` |
 | Accessibility standard and checklist | `STANDARD` in `scripts/render_report.py`, `references/wcag-manual-review.md` |
 | Header checks | `check_headers` in `scripts/check_security.py` |
 | Credential patterns | `scripts/check_security.py` |
@@ -28,6 +28,7 @@ Compare each source against these before deciding a change is needed.
 |---|---|---|
 | [OWASP Top 10:2025](https://owasp.org/Top10/2025/) | commits to [OWASP/Top10](https://github.com/OWASP/Top10): `gh api repos/OWASP/Top10/commits` | category names or CWE lists behind the tags |
 | [OWASP ASVS](https://github.com/OWASP/ASVS) | `gh api repos/OWASP/ASVS/releases` and commits | chapter names behind the tags; a new release |
+| [OWASP AISVS](https://github.com/OWASP/AISVS) | `gh api repos/OWASP/AISVS/releases` and commits | chapter names behind the AI items in the security checklist (cited as 1.0; v1.01 was released 2026-10-16); a new release |
 | [OWASP Secure Headers Project](https://owasp.org/www-project-secure-headers/) | `gh api repos/OWASP/www-project-secure-headers/commits` | headers to check, recommended values, headers now deprecated |
 | [OWASP Cheat Sheet Series](https://cheatsheetseries.owasp.org/) | `gh api repos/OWASP/CheatSheetSeries/commits`, then the changed cheat sheets | fixes recommended in the checklist (XSS, DOM XSS, CSP, SSRF, CSRF, file upload) |
 | [MDN Web Security](https://developer.mozilla.org/en-US/docs/Web/Security) | [MDN blog feed](https://developer.mozilla.org/en-US/blog/rss.xml) | browser security features and deprecations |

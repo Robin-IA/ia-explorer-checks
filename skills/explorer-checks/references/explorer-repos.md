@@ -28,8 +28,8 @@ proof of the repository name.
 
 The explorer is usually not the user's own. So:
 
-- Ask before the first push to a repository on a run, and never push to
-  `main`.
+- Ask before every push, saying what it carries, and never push to
+  `main`. A yes to one push does not cover the next.
 - One branch, `explorer-checks`, and one PR per explorer, updated on every
   re-run.
 - Never merge. Never close someone else's PR or delete their branch.
