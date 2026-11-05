@@ -218,6 +218,11 @@ the checks pin and cite. Each change the checks need becomes an issue
 labelled `watch`. The task does not edit the checks itself. To watch
 something else, add it to that file.
 
+[watch/watch-history.md](watch/watch-history.md) records each run: the
+date, the window, every source read or not read, and the issues that came
+of it. The task adds its entry in a pull request of its own, and manual
+checks are recorded there too.
+
 Installing the skill does not install the watch. You get the checks as
 of your last pull, so pull and re-run `install.py` to pick up what the
 watch has changed.

@@ -3,6 +3,8 @@
 What the weekly watch reads to decide whether the checks need changing. Each
 source names what to look at and what in this repository it could change.
 A change goes in as an issue labelled `watch`; nothing is edited directly.
+Each run's sources, results and issues are recorded in
+[watch-history.md](watch-history.md).
 
 The watch looks at the eight days before the run, so one late run does not
 open a gap. It reads the endpoint given here, not the page, where there is
