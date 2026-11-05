@@ -5,7 +5,7 @@
     python sync_mirror.py --check    # check and report; push nothing
 
 **The mirror is one-way.** `Robin-IA/ia-explorer-checks` is the source
-and `internetarchivecanada/ia-explorer-checks` is a copy for
+and `internetarchivecanada/accessibility-security-checker` is a copy for
 colleagues to read. Nothing is ever committed to the mirror, and nothing is
 ever pulled from it — that is what keeps it from becoming a second history to
 merge. Issues are disabled there for the same reason: one tracker.
