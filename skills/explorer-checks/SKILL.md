@@ -334,9 +334,10 @@ but first show them exactly what you would file and ask:
   <the contents of VERSION>
   ```
 
-Say that `Robin-IA/ia-explorer-checks` is public, so the issue and their
-name will be public. Leave out anything private from their project, and
-add nothing they did not say. If something in this run went wrong because
+Say that it goes to `internetarchivecanada/accessibility-security-checker`,
+which is private: Internet Archive staff can see the issue and their
+name, and nobody else can. Still leave out passwords and tokens, and add
+nothing they did not say. If something in this run went wrong because
 of the checker (a script failed, a check misfired, these instructions
 didn't fit), you may suggest adding a line about it, in your words, marked
 as yours, and only if they agree.
@@ -344,7 +345,7 @@ as yours, and only if they agree.
 On a yes, file it:
 
 ```bash
-gh issue create --repo Robin-IA/ia-explorer-checks     --title "Feedback: …" --body-file <file>     --label feedback --assignee Robin-IA
+gh issue create --repo internetarchivecanada/accessibility-security-checker     --title "Feedback: …" --body-file <file>     --label feedback --assignee Robin-IA
 ```
 
 Only the repository's collaborators can set a label or an assignee. If
@@ -352,5 +353,10 @@ GitHub refuses them, file the issue again without `--label` and
 `--assignee`. It still lands in the repository's issues for the
 maintainer. Give the user the issue's link.
 
+If GitHub says the repository is not found, the user is not in the
+`internetarchivecanada` organization. Tell them so, and offer to file it
+on the public source repository, `Robin-IA/ia-explorer-checks`, instead,
+saying that there it will be public. File it there only on a yes.
+
 If they would rather file it themselves, or later, give them the
-[feedback form](https://github.com/Robin-IA/ia-explorer-checks/issues/new?template=feedback.yml).
+[feedback form](https://github.com/internetarchivecanada/accessibility-security-checker/issues/new?template=feedback.yml).

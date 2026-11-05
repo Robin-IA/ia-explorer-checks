@@ -9,19 +9,19 @@ body:
       value: |
         Thanks for trying the checker. Everything here is optional except your feedback.
 
-        **This repository is public, so anything you type here can be seen by anyone**, including your name and email. You don't need to give either: your GitHub account already tells us who wrote this, and we'll reply here. Don't paste passwords, tokens or anything private from your project.
+        **Only Internet Archive staff can see this**: the repository is private to the `internetarchivecanada` organization. You don't need to give your name or email, since your GitHub account already tells us who wrote this, and we'll reply here. Don't paste passwords or tokens.
   - type: input
     id: name
     attributes:
       label: Your name
-      description: Optional, and public.
+      description: Optional. Visible to Internet Archive staff.
     validations:
       required: false
   - type: input
     id: email
     attributes:
       label: Your email
-      description: Optional, and public. Only if you'd like a reply by email as well as here.
+      description: Optional. Visible to Internet Archive staff. Only if you'd like a reply by email as well as here.
       placeholder: you@archive.org
     validations:
       required: false

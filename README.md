@@ -11,7 +11,7 @@ for setting it up and checking your first explorer. This README is the
 reference.
 
 **Feedback or a problem?** Use the
-[feedback form](https://github.com/Robin-IA/ia-explorer-checks/issues/new?template=feedback.yml).
+[feedback form](https://github.com/internetarchivecanada/accessibility-security-checker/issues/new?template=feedback.yml).
 It opens a public issue here and goes straight to the maintainer.
 
 ## What it is for
@@ -103,9 +103,12 @@ git clone https://github.com/internetarchivecanada/accessibility-security-checke
 cd accessibility-security-checker
 ```
 
-The mirror is read-only and follows `main` of the source repository,
-[Robin-IA/ia-explorer-checks](https://github.com/Robin-IA/ia-explorer-checks),
-so open issues and pull requests there.
+The mirror's code is read-only and follows `main` of the source
+repository, [Robin-IA/ia-explorer-checks](https://github.com/Robin-IA/ia-explorer-checks),
+so open pull requests there. Staff feedback goes to the mirror's own
+issues, through the [feedback form](https://github.com/internetarchivecanada/accessibility-security-checker/issues/new?template=feedback.yml), where only
+Internet Archive staff can see it. Anyone outside the organization can
+open an issue on the source repository, which is public.
 
 **[SETUP.md](SETUP.md)** covers the rest: Python 3.10 or newer (3.12 or
 newer recommended), the packages in their own virtual environment, and the
