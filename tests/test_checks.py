@@ -278,23 +278,23 @@ def test_note_only_when_passing(tmp_path):
     page = tmp_path / "index.html"
     page.write_text(GOOD_PAGE, encoding="utf-8")
     report = tmp_path / "r.md"
-    url = "https://github.com/x/y/blob/main/security-accessibility-checks.md"
 
     render(tmp_path, [Finding("validity", "fail", "r", "t")], {"manual": MANUAL},
            report)
     r = subprocess.run([sys.executable, str(SCRIPTS / "add_page_note.py"),
-                        str(page), "--report", str(report),
-                        "--report-url", url], capture_output=True, text=True)
+                        str(page), "--report", str(report)],
+                       capture_output=True, text=True)
     assert r.returncode != 0 and "not adding" in r.stderr
 
     render(tmp_path, [], {"manual": MANUAL}, report)
     for _ in range(2):  # re-running replaces, never duplicates
-        run("add_page_note.py", page, "--report", report, "--report-url", url)
+        run("add_page_note.py", page, "--report", report)
     text = page.read_text(encoding="utf-8")
     assert len(BLOCK.findall(text)) == 1
     assert text.index("explorer-checks:note") < text.index("</footer>")
     assert "30 October 2026" in text
     assert "Meets WCAG 2.2 Level AA accessibility" in text
+    assert "<a " not in BLOCK.search(text).group(0)  # the report is not linked
     assert "## Standards met" in report.read_text(encoding="utf-8")
 
     run("add_page_note.py", page, "--remove")
@@ -308,9 +308,8 @@ def test_note_on_page_without_footer_or_body(tmp_path):
     page.write_text(bare, encoding="utf-8")
     report = tmp_path / "r.md"
     render(tmp_path, [], {"manual": MANUAL}, report)
-    url = "https://github.com/x/y/blob/main/security-accessibility-checks.md"
     for _ in range(2):
-        run("add_page_note.py", page, "--report", report, "--report-url", url)
+        run("add_page_note.py", page, "--report", report)
     text = page.read_text(encoding="utf-8")
     assert len(BLOCK.findall(text)) == 1
     assert text.index("</main>") < text.index("<footer>") < text.index("<script>")
@@ -324,8 +323,7 @@ def test_note_stays_where_the_owner_moved_it(tmp_path):
     page.write_text(GOOD_PAGE, encoding="utf-8")
     report = tmp_path / "r.md"
     render(tmp_path, [], {"manual": MANUAL}, report)
-    url = "https://github.com/x/y/blob/main/security-accessibility-checks.md"
-    run("add_page_note.py", page, "--report", report, "--report-url", url)
+    run("add_page_note.py", page, "--report", report)
     # The owner moves the block to the top of <main>, indented.
     text = page.read_text(encoding="utf-8")
     block = BLOCK.search(text).group(0)
@@ -333,7 +331,7 @@ def test_note_stays_where_the_owner_moved_it(tmp_path):
     page.write_text(BLOCK.sub("", text).replace("<main>", "<main>\n" + moved),
                     encoding="utf-8")
     before = page.read_text(encoding="utf-8")
-    run("add_page_note.py", page, "--report", report, "--report-url", url)
+    run("add_page_note.py", page, "--report", report)
     assert page.read_text(encoding="utf-8") == before
 
 
@@ -343,8 +341,7 @@ def test_note_at_top_and_moving_it(tmp_path):
                     encoding="utf-8")
     report = tmp_path / "r.md"
     render(tmp_path, [], {"manual": MANUAL}, report)
-    url = "https://github.com/x/y/blob/main/security-accessibility-checks.md"
-    note = ("add_page_note.py", page, "--report", report, "--report-url", url)
+    note = ("add_page_note.py", page, "--report", report)
 
     run(*note, "--position", "top")
     text = page.read_text(encoding="utf-8")
@@ -372,8 +369,7 @@ def test_note_at_top_without_main(tmp_path):
                     "<body><h1>t</h1></body></html>\n", encoding="utf-8")
     report = tmp_path / "r.md"
     render(tmp_path, [], {"manual": MANUAL}, report)
-    run("add_page_note.py", page, "--report", report, "--report-url",
-        "https://example.org/r", "--position", "top")
+    run("add_page_note.py", page, "--report", report, "--position", "top")
     text = page.read_text(encoding="utf-8")
     assert text.index("<body>") < text.index("<aside aria-label=") < \
         text.index("<h1>")
@@ -386,8 +382,7 @@ def test_note_is_small_but_never_below_10pt(tmp_path):
     page.write_text(GOOD_PAGE, encoding="utf-8")
     report = tmp_path / "r.md"
     render(tmp_path, [], {"manual": MANUAL}, report)
-    run("add_page_note.py", page, "--report", report, "--report-url",
-        "https://example.org/r", "--position", "top")
+    run("add_page_note.py", page, "--report", report, "--position", "top")
     # 0.8333rem is 10pt and 1rem 12pt at the default text size; rem, not px,
     # so it still grows when a reader enlarges text.
     assert "font-size:clamp(0.8333rem, 0.875em, 1rem)" in \
@@ -401,8 +396,7 @@ def test_print_gives_the_snippet_and_where_without_changing_the_page(tmp_path):
     before = page.read_text(encoding="utf-8")
     report = tmp_path / "r.md"
     render(tmp_path, [], {"manual": MANUAL}, report)
-    note = ("add_page_note.py", page, "--report", report, "--report-url",
-            "https://example.org/r")
+    note = ("add_page_note.py", page, "--report", report)
 
     out = run(*note, "--position", "top", "--print").stdout
     assert page.read_text(encoding="utf-8") == before
