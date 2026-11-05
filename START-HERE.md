@@ -1,5 +1,9 @@
 # Start here
 
+> **Already set up? [Launch the skill here](#2-choose-your-situation).**
+> In the Claude app's **Code** tab, type `/explorer-checks` and your
+> project's GitHub address.
+
 **The accessibility and security checker looks at your website, such as
 an explorer, and tells you whether its code is valid, whether it is
 secure, and whether people using a keyboard, a screen reader or a small
