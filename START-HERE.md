@@ -16,7 +16,7 @@ the first-time setup is the only part with steps to follow.
   the standards and tools behind it.
 - **[SKILL.md](skills/explorer-checks/SKILL.md)** is the procedure Claude
   follows.
-- **[Feedback form](https://github.com/Robin-IA/ia-explorer-checks/issues/new?template=feedback.yml)**:
+- **[Feedback form](https://github.com/internetarchivecanada/accessibility-security-checker/issues/new?template=feedback.yml)**:
   tell us about a problem or a suggestion. Claude also asks for feedback at
   the end of every check.
 
@@ -220,13 +220,12 @@ reinstalls the skill if it changed.
 | `/explorer-checks` doesn't come up | In `~/projects/accessibility-security-checker`, run `.venv/bin/python install.py`, then start a new Claude session. |
 
 **Feedback, or a problem with the checker?** Use the
-**[feedback form](https://github.com/Robin-IA/ia-explorer-checks/issues/new?template=feedback.yml)**.
+**[feedback form](https://github.com/internetarchivecanada/accessibility-security-checker/issues/new?template=feedback.yml)**.
 It takes a minute: what happened or what you'd like, and optionally your
 name, email and the project you were checking. It opens an issue on
-[Robin-IA/ia-explorer-checks](https://github.com/Robin-IA/ia-explorer-checks/issues),
-the source repository, and goes straight to the maintainer. That
-repository is public, so leave out anything private. The copy in
-`internetarchivecanada` follows it and does not take issues.
+[the mirror in `internetarchivecanada`](https://github.com/internetarchivecanada/accessibility-security-checker/issues),
+where only Internet Archive staff can see it, and goes straight to the
+maintainer. Still leave out passwords and tokens.
 
 ## 7. Where things are
 

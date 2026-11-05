@@ -225,9 +225,10 @@ rm -rf .venv
 | `/explorer-checks` doesn't come up in Claude | Run `.venv/bin/python install.py`, then start a new Claude session. |
 
 Stuck on something this table doesn't cover? Use the
-[feedback form](https://github.com/Robin-IA/ia-explorer-checks/issues/new?template=feedback.yml),
+[feedback form](https://github.com/internetarchivecanada/accessibility-security-checker/issues/new?template=feedback.yml),
 and paste what `check_setup.py` prints into its "Setup output" box. The
-form opens a public issue, so leave out anything private.
+form opens an issue that only Internet Archive staff can see. Still
+leave out passwords and tokens.
 
 ## 8. For Claude
 
