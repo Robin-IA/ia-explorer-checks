@@ -31,8 +31,17 @@ The scripts are the automated half. **You are the other half**, and a check
 cannot pass without you. Tools cannot tell escaped data from raw data, or
 whether alt text is meaningful. Most of WCAG needs a reader.
 
-Scripts are in `scripts/` next to this file. Call them with the Python that
-has `requirements.txt` installed (see the repository README).
+Scripts are in `scripts/` next to this file. Run them with the Python
+recorded at install, which has the packages they need:
+
+```bash
+PY="$(cat ~/.claude/skills/explorer-checks/PYTHON)"
+```
+
+`"$PY"` in the commands below is that Python. If `PYTHON` is missing, or
+a script fails with `No module named …`, setup is incomplete: stop and
+point the user to `SETUP.md` in the checker's repository. Do not
+`pip install` into some other Python to get past it.
 
 ## 1. Get the explorer
 
@@ -80,7 +89,7 @@ cannot, say so in the review and check the hidden views by hand.
 ## 3. Run the automated checks
 
 ```bash
-python scripts/run_checks.py ~/explorer-checks/<repo> --page <path> \
+"$PY" scripts/run_checks.py ~/explorer-checks/<repo> --page <path> \
     [--base-url URL] [--live-url URL]
 ```
 
@@ -118,7 +127,7 @@ it stays `fail`; the fix is usually small.
 ## 5. Write the report, locally
 
 ```bash
-python scripts/render_report.py <findings.json> --review <review.json> \
+"$PY" scripts/render_report.py <findings.json> --review <review.json> \
     --out ~/explorer-checks/<repo>/security-accessibility-checks.md
 ```
 
@@ -165,9 +174,9 @@ then security, then accessibility. For each:
    there now, not from the last report:
 
    ```bash
-   python scripts/check_validity.py <repo> --out <dir>/validity.json
-   python scripts/check_security.py <repo> --out <dir>/security.json [--live-url URL]
-   python scripts/check_browser.py  <repo> --out <dir>/browser.json --page <path>
+   "$PY" scripts/check_validity.py <repo> --out <dir>/validity.json
+   "$PY" scripts/check_security.py <repo> --out <dir>/security.json [--live-url URL]
+   "$PY" scripts/check_browser.py  <repo> --out <dir>/browser.json --page <path>
    ```
 
    `check_browser.py` carries the accessibility checks.
@@ -211,7 +220,7 @@ asks to move it. Then:
 1. Add the note to each checked page:
 
    ```bash
-   python scripts/add_page_note.py ~/explorer-checks/<repo>/<page>.html \
+   "$PY" scripts/add_page_note.py ~/explorer-checks/<repo>/<page>.html \
        --report ~/explorer-checks/<repo>/security-accessibility-checks.md \
        --report-url https://github.com/<org>/<repo>/blob/main/security-accessibility-checks.md \
        --position bottom   # or top

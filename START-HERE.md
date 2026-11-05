@@ -1,118 +1,113 @@
 # Start here
 
-**Explorer checks looks at an Internet Archive explorer and tells you
-whether its code is valid, whether it is secure, and whether people using
-a keyboard, a screen reader or a small screen can use it (WCAG 2.2 Level
-AA). It writes a report listing everything to fix, with the fix, and asks
-before it changes anything.**
+**The accessibility and security checker looks at your website, such as
+an explorer, and tells you whether its code is valid, whether it is
+secure, and whether people using a keyboard, a screen reader or a small
+screen can use it (WCAG 2.2 Level AA). You run it on your own project:
+before you publish it, to catch problems first, or after, to check what is
+already live. It writes a report of everything to fix, with the fix, and
+asks before it changes anything.**
+
+You do not need to be a programmer. You ask Claude in plain English, and
+the first-time setup is the only part with steps to follow.
 
 - **This page** is the recipe. Follow it top to bottom the first time.
-- **[README.md](README.md)** is the reference: what each check covers, the
-  standards and tools behind it, and how a run works.
+- **[README.md](README.md)** is the reference: what each check covers and
+  the standards and tools behind it.
 - **[SKILL.md](skills/explorer-checks/SKILL.md)** is the procedure Claude
-  follows, step by step.
-
-You do not need to be a programmer. Setup takes about 10 minutes the first
-time. After that, you ask Claude in plain English.
+  follows.
 
 ## Contents
 
-1. [Before you start](#before-you-start)
-2. [One-time setup](#one-time-setup)
-3. [Checking an explorer](#checking-an-explorer)
-4. [What comes back](#what-comes-back)
-5. [Fixing, passing and handing over](#fixing-passing-and-handing-over)
-6. [Every time after the first](#every-time-after-the-first)
-7. [When something goes wrong](#when-something-goes-wrong)
-8. [Where things are](#where-things-are)
+1. [Set up, once](#1-set-up-once)
+2. [Choose your situation](#2-choose-your-situation)
+3. [What comes back](#3-what-comes-back)
+4. [Fixes, the pull request, and merging](#4-fixes-the-pull-request-and-merging)
+5. [Every time after the first](#5-every-time-after-the-first)
+6. [When something goes wrong](#6-when-something-goes-wrong)
+7. [Where things are](#7-where-things-are)
 
 ---
 
-## Before you start
+## 1. Set up, once
 
-- **A Mac with Claude Code and the command-line tools installed.** If you
-  don't have them yet, follow
-  [Technical Setup: GitHub, Claude, CLI Tools](https://docs.google.com/document/d/1x5VglCkcNSHvLq-YVyvTxlEEyYqVgNexNtGWucY4wl0/edit?usp=sharing).
-- **Membership of the `internetarchivecanada` GitHub organization.** The
-  copy of this tool you clone is a private repository there, and so are
-  some explorers. If you are not a member, ask an organization admin on Slack for an
-  invite, giving your @archive.org address. The invite arrives by email.
-- **The GitHub CLI, signed in**, so Claude can open pull requests for you.
-  It is only needed at the end, when you choose to push a report.
+**Follow [SETUP.md](SETUP.md).** It takes you from a Mac with nothing
+installed to one that's ready: Claude and GitHub, the latest Python, the
+checker's own packages and browser, and a check that everything is there.
 
-**Check you are ready.** Open Terminal (**Cmd + Space**, type `Terminal`,
-press **Return**) and run:
+The quickest way is to let Claude do it. Clone this repository (SETUP.md,
+step 0 says how), open it as the project folder in Claude Desktop's
+**Code** tab, and ask:
 
-```bash
-claude --version
-git --version
-python3 --version
-gh auth status
-```
+> Read SETUP.md and set me up. Run `check_setup.py` first, and ask me before each install.
 
-- The first three print a version number.
-- `gh auth status` says you are logged in to github.com. If it doesn't, run
-  `gh auth login` and follow the prompts.
-- "command not found" means that tool is not installed yet: go back to the
-  setup document.
+You're ready when `check_setup.py` ends with **"Everything the checks
+need is here."** Every repository with a skill has its own SETUP.md,
+because each one needs different software.
 
-## One-time setup
+## 2. Choose your situation
 
-Copy and run these one at a time. The first two get the tool:
+You run the checker on **your own** project. Claude needs its GitHub
+address. You don't connect the project to the checker: Claude reaches it
+through your GitHub sign-in, so it can check any repository you can see.
 
-```bash
-git clone https://github.com/internetarchivecanada/accessibility-security-checker.git ~/accessibility-security-checker
-```
+**No project of your own yet?** Practise on the public Federal Pandemic
+Record explorer,
+`https://github.com/internetarchivecanada/federal-pandemic-record-covid19`.
+When Claude asks what to do at the end, choose **Stop**, so nothing is
+sent to someone else's repository.
 
-```bash
-cd ~/accessibility-security-checker
-```
+### A. My website is already published
 
-A "Repository not found" error means you are not in the organization yet;
-see [Before you start](#before-you-start).
+Start a new session in the **Code** tab. Type `/explorer-checks`, then a
+space, then your project's addresses: the GitHub repository, and the live
+page so the checks can read the live site's security headers:
 
-Next, install what the checks run. The second command downloads a copy of
-Chromium that the accessibility check drives; it takes a minute or two:
+> /explorer-checks https://github.com/internetarchivecanada/my-explorer, live at https://internetarchivecanada.github.io/my-explorer/
 
-```bash
-python3 -m pip install -r requirements.txt
-```
+If `/explorer-checks` doesn't come up when you type `/`, ask in plain
+words instead: "Run explorer checks on …". If neither works, the skill is
+not installed or not up to date: finish [SETUP.md](SETUP.md) (section 1).
 
-```bash
-python3 -m playwright install chromium
-```
+### B. My website is not published yet
 
-Last, install the skill into Claude Code, so it works from any folder:
+Check it **before** you publish, as the last step before it goes live.
 
-```bash
-python3 install.py
-```
+**Nothing has to be public to be checked.** Claude copies the repository
+to your Mac and serves the pages there, on your own machine. You don't
+need to turn on GitHub Pages, and a private repository is fine.
 
-It prints where it installed the skill. Setup is done.
+1. Make sure the project is on GitHub, in a private repository if you
+   like. If it is only a folder on your Mac, ask Claude: "Connect this
+   folder to a new **private** repo in the internetarchivecanada
+   organization" (see
+   [Start your own new project](https://github.com/internetarchivecanada/ia-admin/blob/main/docs/install-claude-code.md#5-start-your-own-new-project)).
+2. Start a new session and give the repository address:
 
-## Checking an explorer
+   > /explorer-checks https://github.com/internetarchivecanada/my-explorer — not published yet
 
-Start Claude Code in any folder:
+3. Fix what it finds (section 4) until it passes.
+4. **Then publish.** Once it is live, re-run with the live address
+   (situation A). The live site's response headers are the one thing that
+   can't be checked before publishing. Those findings are advisory, so the
+   re-run doesn't change whether it passes.
 
-```bash
-claude
-```
+**A note on GitHub Pages and private repositories.** On most GitHub plans,
+a Pages site is public even when its repository is private, so don't turn
+on Pages until you are ready for it to be public. The checks flag a
+private repository that serves a Pages site.
 
-Then ask for a check, giving the explorer's GitHub address or its live
-address:
+### What happens next, in either situation
 
-> Run explorer checks on https://github.com/internetarchivecanada/federal-pandemic-record-covid19
-
-Claude copies the explorer to `~/explorer-checks/<repo>/` on your Mac,
-runs the automated checks against every view of the page, and then does
+Claude copies your project to `~/explorer-checks/<repo>/` on your Mac and
+runs the automated checks against every view of the page. Then it does
 the half no tool can: it reads the code that turns data into markup, tabs
-through the page, and looks at it at 320 px wide and at 200% zoom. Expect
-a first run to take a while.
+through the page, and looks at it 320 px wide and at 200% zoom. A first
+run takes a while.
 
-All of this happens on your Mac. Nothing reaches the explorer's repository
-at this stage.
+All of this happens on your Mac. **Nothing reaches your repository yet.**
 
-## What comes back
+## 3. What comes back
 
 Claude tells you:
 
@@ -125,28 +120,28 @@ Claude tells you:
    page behind a login. A check that did not run did not pass.
 4. **Where the report is**: `~/explorer-checks/<repo>/security-accessibility-checks.md`.
 
-Then it asks what you want next:
+Then it asks what you want to do next:
 
 - **Apply the fixes.** Claude makes them, one commit per check, re-runs,
   and shows you the new report.
-- **Push the report as it stands**, so the explorer's owners can fix it
-  themselves.
-- **Stop.** The report stays on your Mac, and nothing has changed in the
-  explorer's repository.
+- **Send the report as it stands**, so you, or the project's owners, can
+  fix things another way.
+- **Stop.** The report stays on your Mac, and nothing changes in your
+  repository.
 
-Each yes covers one step only. Claude asks again before the next one.
+Each yes covers one step. Claude asks again before the next one.
 
-## Fixing, passing and handing over
+## 4. Fixes, the pull request, and merging
 
 **Fixes.** If you say yes, Claude applies the recommended fixes and checks
 the ones that change behaviour (focus, keyboard, contrast) in a browser.
-Some things are not Claude's to decide, such as removing a feature or
-changing a data source. Those stay in the report for the owners.
+Some decisions aren't Claude's to make, such as removing a feature or
+changing a data source. Those stay in the report for you.
 
 **Passing.** A check passes when nothing must be fixed, every item a tool
-could not decide has been resolved by Claude, and the manual checklist is
-complete. When all three pass, Claude shows you the statement it would put
-on the explorer's page and asks before adding it:
+could not decide has been resolved, and the manual checklist is complete.
+When all three pass, Claude shows you the statement it would put on your
+page, and asks before adding it:
 
 > Meets WCAG 2.2 Level AA accessibility (and WCAG 2.1 AA and 2.0 AA),
 > checked 3 November 2026 by automated tests and manual review. Also
@@ -156,66 +151,72 @@ You choose where it goes: at the **bottom**, in the page's footer, or at
 the **top**, as the first thing in the main content, below the header.
 You can move it later by asking Claude to.
 
-**Pushing.** Before anything goes to GitHub, Claude tells you what will go:
-the branch, the commits, the repository. On your yes it pushes a branch
-called `explorer-checks` and opens a pull request.
+**The pull request.** Before anything goes to GitHub, Claude tells you
+what will go: the branch, the changes, the repository. On your yes, it
+sends a branch called `explorer-checks` to your repository and opens a
+**pull request**: a proposed change that waits for someone to accept it.
+The report goes in the pull request as a file, along with any fixes and
+the page statement, so there is one thing to review. You need permission
+to make changes in the repository. If you don't have it, ask its owners.
 
-**Handing over.** The review and merge are yours, or the explorer owners'.
-Read the changes, look at the page, and merge. Claude never merges and
-never pushes to `main`.
+**Merging: getting the changes into your explorer.** Claude never merges.
+That's yours to do, or the owners':
 
-## Every time after the first
+1. Open the pull request link Claude gives you.
+2. Read the **Conversation** tab, then **Files changed** to see each
+   change. `security-accessibility-checks.md` is the report.
+3. If your project is published from `main` (GitHub Pages usually is),
+   merging publishes the changes. To look first, ask Claude: "Serve the
+   `explorer-checks` branch so I can look at it in the browser."
+4. Click **Merge pull request**, then **Confirm merge**. If it isn't your
+   project, add the owners as reviewers instead and let them merge.
+5. Something changed on `main` after the check? Re-run (section 5) before
+   merging. A report describes the version it checked.
 
-**Re-run** after fixes, after any change to the explorer, or to re-date a
-passing report:
+## 5. Every time after the first
 
-> Re-run the explorer checks on federal-pandemic-record-covid19
+**Re-run** at any time: after fixes, after any change to the site, before
+each publication, or to re-date a passing report:
 
-A re-run updates the same report, the same branch and the same pull
-request, and lists what was fixed since the last one.
+> /explorer-checks re-run on my-explorer
 
-**Update the tool** now and then. The checks are kept current against new
-standards and new vulnerabilities, and you get those changes by pulling:
+A re-run updates the same report, branch and pull request, and lists what
+was fixed since last time.
 
-```bash
-cd ~/accessibility-security-checker
-```
+**Keep the checker up to date.** The checks are kept current with new
+standards and new vulnerabilities. Every few weeks, ask Claude in the
+`accessibility-security-checker` project folder:
 
-```bash
-git pull
-```
+> Update the checker: follow SETUP.md, section 6.
 
-```bash
-python3 install.py --check
-```
+That pulls the latest checks, updates Python and the packages, and
+reinstalls the skill if it changed.
 
-If it says "out of date", run `python3 install.py` again.
-
-## When something goes wrong
+## 6. When something goes wrong
 
 | What you see | What to do |
 |---|---|
-| "Repository not found" when cloning | You are not in the `internetarchivecanada` organization yet. See [Before you start](#before-you-start). |
-| `No module named ...` | Setup was skipped or ran with a different Python. Run the `pip install` line from [One-time setup](#one-time-setup) again. |
-| "Executable doesn't exist" about Chromium | Run `python3 -m playwright install chromium`. |
-| A report item starting `tool:` | A checker did not run, for example with no network. The check cannot pass until it does. Fix the cause and re-run. |
-| Claude says an app would not start | Explorers that are Flask apps need their own setup. The report says what could not be checked. Start the app as its README says, then re-run. |
-| `gh` says you are not logged in | Run `gh auth login`. |
-| Claude doesn't recognise the request | Run `python3 install.py --check` in `~/accessibility-security-checker`, and install again if it is out of date. |
+| "Repository not found" | You are not in the `internetarchivecanada` organization yet, or the project's address is wrong. See [Get a GitHub account](https://github.com/internetarchivecanada/ia-admin/blob/main/docs/github-account.md). |
+| "GitHub CLI authentication required" | Click **Install and authenticate**, then **Authorize**. |
+| Anything about Python, packages, Chromium, `gh` or certificates | Ask Claude: "Run `.venv/bin/python check_setup.py` and fix what it reports, following SETUP.md." [SETUP.md, section 7](SETUP.md#7-when-something-goes-wrong) lists each error and its fix. |
+| A report item starting `tool:` | A checker did not run, for example with no network. The check can't pass until it does. Fix the cause and re-run. |
+| Claude says an app would not start | Explorers that are Flask apps need their own setup. Start the app as its README says, then re-run. The report says what it couldn't check. |
+| Pushing fails with "permission denied" | You can't make changes in that repository. Ask its owners for write access, or choose **Stop** and send them the report. |
+| `/explorer-checks` doesn't come up | In `~/projects/accessibility-security-checker`, run `.venv/bin/python install.py`, then start a new Claude session. |
 
-**Reporting problems.** Open an issue on
+**Reporting a problem with the checker.** Open an issue on
 [Robin-IA/ia-explorer-checks](https://github.com/Robin-IA/ia-explorer-checks/issues),
 the source repository. The copy in `internetarchivecanada` follows it and
 does not take issues.
 
-## Where things are
+## 7. Where things are
 
 | What | Where |
 |---|---|
-| This tool | `~/accessibility-security-checker` |
+| The checker | `~/projects/accessibility-security-checker` |
 | The installed skill | `~/.claude/skills/explorer-checks` |
-| Explorers you have checked | `~/explorer-checks/<repo>/` |
-| The report for one explorer | `~/explorer-checks/<repo>/security-accessibility-checks.md` |
+| Projects you have checked | `~/explorer-checks/<repo>/` |
+| The report for one project | `~/explorer-checks/<repo>/security-accessibility-checks.md` |
 | The security checklist | [skills/explorer-checks/references/security-review.md](skills/explorer-checks/references/security-review.md) |
 | The accessibility checklist | [skills/explorer-checks/references/wcag-manual-review.md](skills/explorer-checks/references/wcag-manual-review.md) |
 | A finished, passing report | [Federal Pandemic Record](https://github.com/internetarchivecanada/federal-pandemic-record-covid19/blob/main/security-accessibility-checks.md) |
