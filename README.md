@@ -31,8 +31,9 @@ at 320 px and 200% zoom. A check passes only when both halves are complete.
 
 Each run produces three things:
 
-- **A report**, `security-accessibility-checks.md`, in the explorer's
-  repository. While anything is open, it lists each item with a
+- **A report**, `security-accessibility-checks.md`, written into a local
+  checkout of the explorer and pushed to its repository, in a pull
+  request, when you say so. While anything is open, it lists each item with a
   recommended fix: the file, the element and the change. Finding ids are
   stable, so each report also lists what was fixed since the last one.
 - **Fixes**, if you want them, one commit per check.
@@ -79,6 +80,18 @@ each step that reaches anyone else:
 A yes covers one step, not the rest of the run.
 
 ## Install
+
+Internet Archive staff can clone the mirror in the internetarchivecanada
+organization:
+
+```bash
+git clone https://github.com/internetarchivecanada/ia-explorer-checks.git
+cd ia-explorer-checks
+```
+
+The mirror is read-only and follows `main` of the source repository,
+[Robin-IA/ia-explorer-checks](https://github.com/Robin-IA/ia-explorer-checks),
+so open issues and pull requests there. Then:
 
 ```bash
 python3 -m pip install -r requirements.txt
@@ -197,12 +210,17 @@ version and cited standard lives in the code.
 
 ## Keeping the checks current
 
-Once a week, a scheduled Claude Code task reads the sources in
+Every Monday, a scheduled task in the maintainer's Claude desktop app
+reads the sources in
 [watch/sources.md](watch/sources.md): OWASP standards, vulnerability feeds,
 reference scanners, axe-core and WCAG. It compares what changed against what
 the checks pin and cite. Each change the checks need becomes an issue
 labelled `watch`. The task does not edit the checks itself. To watch
 something else, add it to that file.
+
+Installing the skill does not install the watch. You get the checks as
+of your last pull, so pull and re-run `install.py` to pick up what the
+watch has changed.
 
 ## Tests
 
