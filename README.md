@@ -96,16 +96,24 @@ cd accessibility-security-checker
 
 The mirror is read-only and follows `main` of the source repository,
 [Robin-IA/ia-explorer-checks](https://github.com/Robin-IA/ia-explorer-checks),
-so open issues and pull requests there. Then:
+so open issues and pull requests there.
+
+**[SETUP.md](SETUP.md)** covers the rest: Python 3.10 or newer (3.12 or
+newer recommended), the packages in their own virtual environment, and the
+browser. Point Claude at it, or in short:
 
 ```bash
-python3 -m pip install -r requirements.txt
-python3 -m playwright install chromium
-python3 install.py
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python -m playwright install chromium
+.venv/bin/python check_setup.py
+.venv/bin/python install.py
 ```
 
-`install.py` copies the skill to `~/.claude/skills/explorer-checks/`. Run it
-again after pulling changes; `python3 install.py --check` says whether
+`check_setup.py` lists anything missing, with the fix. `install.py`
+copies the skill to `~/.claude/skills/explorer-checks/` and records which
+Python ran it, so the skill runs its checks with the same environment.
+Run it again after pulling changes; `install.py --check` says whether
 that's needed.
 
 ## Run it
@@ -128,7 +136,7 @@ checkout. They produce findings only, with no review, report or
 pull request:
 
 ```bash
-python3 skills/explorer-checks/scripts/run_checks.py <checkout> --page mockup/
+.venv/bin/python skills/explorer-checks/scripts/run_checks.py <checkout> --page mockup/
 ```
 
 ## How a run works
@@ -236,7 +244,7 @@ watch has changed.
 ## Tests
 
 ```bash
-python3 -m pytest
+.venv/bin/python -m pytest
 ```
 
 ## Credits
