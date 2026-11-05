@@ -16,6 +16,9 @@ the first-time setup is the only part with steps to follow.
   the standards and tools behind it.
 - **[SKILL.md](skills/explorer-checks/SKILL.md)** is the procedure Claude
   follows.
+- **[Feedback form](https://github.com/Robin-IA/ia-explorer-checks/issues/new?template=feedback.yml)**:
+  tell us about a problem or a suggestion. Claude also asks for feedback at
+  the end of every check.
 
 ## Contents
 
@@ -147,16 +150,28 @@ page, and asks before adding it:
 > checked 3 November 2026 by automated tests and manual review. Also
 > passes security and code validity checks. Read the report.
 
-You choose where it goes: at the **bottom**, in the page's footer, or at
-the **top**, as the first thing in the main content, below the header.
-You can move it later by asking Claude to.
+You choose how it's added:
+
+- **Bottom**: Claude puts it in the page's footer.
+- **Top**: Claude puts it as the first thing in the main content, below
+  the header.
+- **I'll paste it in myself**: Claude gives you the code, the file, and
+  exactly where it goes ("directly after the line `<main id="content">`").
+  You paste it into your own copy, save, commit, and then ask Claude to
+  re-run so the report confirms the page still passes with it.
+
+At the top or the bottom, the statement is in small print, between 10 and
+12 points, so it's noticeable without crowding the page, and it still
+grows when a reader enlarges text. You can move it later by asking
+Claude.
 
 **The pull request.** Before anything goes to GitHub, Claude tells you
 what will go: the branch, the changes, the repository. On your yes, it
 sends a branch called `explorer-checks` to your repository and opens a
 **pull request**: a proposed change that waits for someone to accept it.
 The report goes in the pull request as a file, along with any fixes and
-the page statement, so there is one thing to review. You need permission
+the page statement (unless you're pasting the statement in yourself), so
+there is one thing to review. You need permission
 to make changes in the repository. If you don't have it, ask its owners.
 
 **Merging: getting the changes into your explorer.** Claude never merges.
@@ -204,10 +219,14 @@ reinstalls the skill if it changed.
 | Pushing fails with "permission denied" | You can't make changes in that repository. Ask its owners for write access, or choose **Stop** and send them the report. |
 | `/explorer-checks` doesn't come up | In `~/projects/accessibility-security-checker`, run `.venv/bin/python install.py`, then start a new Claude session. |
 
-**Reporting a problem with the checker.** Open an issue on
+**Feedback, or a problem with the checker?** Use the
+**[feedback form](https://github.com/Robin-IA/ia-explorer-checks/issues/new?template=feedback.yml)**.
+It takes a minute: what happened or what you'd like, and optionally your
+name, email and the project you were checking. It opens an issue on
 [Robin-IA/ia-explorer-checks](https://github.com/Robin-IA/ia-explorer-checks/issues),
-the source repository. The copy in `internetarchivecanada` follows it and
-does not take issues.
+the source repository, and goes straight to the maintainer. That
+repository is public, so leave out anything private. The copy in
+`internetarchivecanada` follows it and does not take issues.
 
 ## 7. Where things are
 

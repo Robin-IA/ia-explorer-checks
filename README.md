@@ -10,6 +10,10 @@ the result on the project's page.
 for setting it up and checking your first explorer. This README is the
 reference.
 
+**Feedback or a problem?** Use the
+[feedback form](https://github.com/Robin-IA/ia-explorer-checks/issues/new?template=feedback.yml).
+It opens a public issue here and goes straight to the maintainer.
+
 ## What it is for
 
 Today it checks Internet Archive **explorers**: static sites and small
@@ -53,6 +57,11 @@ Each run produces three things:
   find most problems, not all of them, and testing with people who use
   assistive technology is still worth doing. A later run that stops
   passing removes the statement.
+
+  You choose how it's added: Claude puts it at the **bottom** (in the
+  footer) or the **top** (first in the main content, below the header),
+  or gives you the code and its exact place to **paste it in yourself**.
+  It's set in small print, held between 10 and 12 points.
 
 **Re-run it at any time**: after fixes, after any change to the explorer,
 or to re-date a passing report. A re-run updates the same report, the same
@@ -159,6 +168,8 @@ follows. In short:
    choose, and one more run confirms the page still passes with it.
 7. **Push and open the PR** when you say so, then hand over for review
    and merge.
+8. **Ask for feedback** on the checker itself. If you give some, Claude
+   shows you the issue it would file, and files it on your yes.
 
 A check passes only with no `fail` items, no unresolved `review` items and,
 for security and accessibility, a completed manual checklist. A tool that

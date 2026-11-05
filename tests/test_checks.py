@@ -379,3 +379,44 @@ def test_note_at_top_without_main(tmp_path):
         text.index("<h1>")
     run("add_page_note.py", page, "--remove")
     assert "aside" not in page.read_text(encoding="utf-8")
+
+
+def test_note_is_small_but_never_below_10pt(tmp_path):
+    page = tmp_path / "index.html"
+    page.write_text(GOOD_PAGE, encoding="utf-8")
+    report = tmp_path / "r.md"
+    render(tmp_path, [], {"manual": MANUAL}, report)
+    run("add_page_note.py", page, "--report", report, "--report-url",
+        "https://example.org/r", "--position", "top")
+    # 0.8333rem is 10pt and 1rem 12pt at the default text size; rem, not px,
+    # so it still grows when a reader enlarges text.
+    assert "font-size:clamp(0.8333rem, 0.875em, 1rem)" in \
+        page.read_text(encoding="utf-8")
+
+
+def test_print_gives_the_snippet_and_where_without_changing_the_page(tmp_path):
+    page = tmp_path / "index.html"
+    page.write_text(GOOD_PAGE.replace("<body>", "<body><header>Site</header>"),
+                    encoding="utf-8")
+    before = page.read_text(encoding="utf-8")
+    report = tmp_path / "r.md"
+    render(tmp_path, [], {"manual": MANUAL}, report)
+    note = ("add_page_note.py", page, "--report", report, "--report-url",
+            "https://example.org/r")
+
+    out = run(*note, "--position", "top", "--print").stdout
+    assert page.read_text(encoding="utf-8") == before
+    assert "start of <main>" in out and "<main>" in out
+    assert "<!-- explorer-checks:note -->" in out
+    assert "<!-- /explorer-checks:note -->" in out
+    assert "Keep the two marker comments" in out
+
+    # What --print says to do is exactly what the script would do.
+    line = int(out.split("as a new line ", 1)[1].split(",", 1)[0])
+    run(*note, "--position", "top")
+    after = page.read_text(encoding="utf-8").split("\n")
+    assert after[line - 1] == "<!-- explorer-checks:note -->"
+
+    # With a note already there, it says which lines to replace.
+    out = run(*note, "--print").stdout
+    assert out.startswith(f"Replace lines {line} to ")

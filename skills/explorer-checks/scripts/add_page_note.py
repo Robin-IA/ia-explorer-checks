@@ -2,7 +2,7 @@
 
     python add_page_note.py <page.html> --report <explorer>/security-accessibility-checks.md
                             --report-url https://github.com/<org>/<repo>/blob/main/security-accessibility-checks.md
-                            [--position top|bottom]
+                            [--position top|bottom] [--print]
     python add_page_note.py <page.html> --remove
 
 It refuses to add the note unless the report says passing. The note names
@@ -28,6 +28,16 @@ goes at the bottom instead, and says so.
 Either way the note stays inside a landmark, which axe's region rule
 requires. It inherits the page's text colour, so its contrast is whatever
 the page's contrast already is, and the page has just passed.
+
+Its size is small but readable: 0.875em of the text around it, kept between
+10 and 12 points (13.3 to 16 px at the browser's default text size). The
+limits are in rem, so the note still grows when a reader enlarges text.
+
+--print changes nothing. It prints the note and exactly where it would go
+(file, line, and the line before it), for an owner who would rather paste
+it in by hand. The marker comments are part of what to paste: they let a
+later run refresh the date, or take the note down if the page stops
+passing.
 """
 
 import argparse
@@ -38,11 +48,12 @@ import sys
 
 from render_report import ALSO_MET, STANDARD, previous_open
 
+SIZE = "clamp(0.8333rem, 0.875em, 1rem)"   # 10pt to 12pt, scaling with text
 START, END = "<!-- explorer-checks:note -->", "<!-- /explorer-checks:note -->"
 BLOCK = re.compile(re.escape(START) + r".*?" + re.escape(END) + r"\n?", re.S)
 
 NOTE = """{start}
-<p class="explorer-checks-note" style="font-size:0.875em;margin:{margin}">
+<p class="explorer-checks-note" style="font-size:{size};margin:{margin}">
   Meets {standard} accessibility (and {also}), checked
   <time datetime="{iso}">{human}</time> by automated tests and manual review.
   Also passes security and code validity checks.
@@ -60,6 +71,8 @@ def main():
     ap.add_argument("--position", choices=("top", "bottom"),
                     help="where to put the note; moves an existing one")
     ap.add_argument("--remove", action="store_true")
+    ap.add_argument("--print", action="store_true", dest="show",
+                    help="print the note and where it goes; change nothing")
     args = ap.parse_args()
 
     page = pathlib.Path(args.page)
@@ -82,7 +95,7 @@ def main():
     position = args.position or "bottom"
     note = NOTE.format(start=START, end=END, standard=STANDARD, also=ALSO_MET,
                        iso=day.isoformat(), human=f"{day.day} {day:%B %Y}",
-                       url=args.report_url,
+                       url=args.report_url, size=SIZE,
                        margin="0 0 1em" if position == "top" else "1em 0 0")
 
     if old and not args.position:
@@ -91,6 +104,9 @@ def main():
         text = BLOCK.sub("", text)
         place_at = place_top if position == "top" else place
         text, where = place_at(text, note)
+    if args.show:
+        print(paste_instructions(page, text, where, replacing=bool(old)))
+        return 0
     page.write_text(text, encoding="utf-8", newline="")
     print(f"note added to {page} ({where})")
     return 0
@@ -154,6 +170,30 @@ def place_top(text, note):
             "start of <body>, in an <aside>"
     text, where = place(text, note.replace("margin:0 0 1em", "margin:1em 0 0"))
     return text, f"{where}; no <main> or <body> to put it at the top of"
+
+
+def paste_instructions(page, text, where, replacing):
+    """What to paste and exactly where, read off the page as it would be
+    after placing the note, so it matches what the script would do."""
+    nl = "\n"
+    m = BLOCK.search(text)
+    first = text.count(nl, 0, m.start()) + 1
+    block = m.group(0).rstrip(nl)
+    last = first + block.count(nl)
+    before = text[:m.start()].rstrip(nl).rsplit(nl, 1)[-1].strip()
+    if replacing:
+        how = (f"Replace lines {first} to {last} of {page} (the old note, "
+               "between the explorer-checks markers) with:")
+    else:
+        how = (f"Paste this into {page} as a new line {first}, {where}, "
+               f"directly after the line that reads:{nl}{nl}    {before}"
+               f"{nl}{nl}Paste:")
+    return nl.join([how, "", block, "",
+                    "Keep the two marker comments: they let a later run update "
+                    "the date, or take the note down if the page stops "
+                    "passing. Save the file, commit it, and re-run the checks "
+                    "so the report confirms the page still passes with the "
+                    "note."])
 
 
 if __name__ == "__main__":
