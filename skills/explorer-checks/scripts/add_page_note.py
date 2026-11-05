@@ -10,8 +10,10 @@ links to the report, whose "Standards met" and "What a pass means"
 sections give the detail and the limits. A run that stops passing should
 remove the note, since an out-of-date claim is worse than none.
 
-The note sits between marker comments, so re-running replaces it in place.
-It goes at the end of <footer> if the page has one. Otherwise it goes in a
+The note sits between marker comments, so re-running replaces it in place,
+keeping its indentation and any <footer> it was given. An owner can move
+the block, say to the top of the page, and later runs leave it there.
+The first time, it goes at the end of <footer> if the page has one. Otherwise it goes in a
 <footer> of its own, just after </main>, else just before </body>, else at
 the end of the file: HTML lets a page leave out </body>, and some explorers
 do. Its own <footer> keeps the note inside a landmark. It inherits the
@@ -51,9 +53,10 @@ def main():
 
     page = pathlib.Path(args.page)
     text = page.read_text(encoding="utf-8")
-    text = BLOCK.sub("", text)
+    old = BLOCK.search(text)
 
     if args.remove:
+        text = BLOCK.sub("", text)
         page.write_text(text, encoding="utf-8", newline="")
         print(f"note removed from {page}")
         return 0
@@ -69,10 +72,27 @@ def main():
                        iso=day.isoformat(), human=f"{day.day} {day:%B %Y}",
                        url=args.report_url)
 
-    text, where = place(text, note)
+    if old:
+        text, where = replace(text, old, note), "kept in place"
+    else:
+        text, where = place(text, note)
     page.write_text(text, encoding="utf-8", newline="")
     print(f"note added to {page} ({where})")
     return 0
+
+
+def replace(text, old, note):
+    """The new note where the old one was, in the old one's indentation
+    and, if it had one, its <footer>."""
+    if "<footer>" in old.group(0):
+        note = note.replace(START + "\n", START + "\n<footer>\n").replace(
+            "\n" + END, "\n</footer>\n" + END)
+    indent = text[text.rfind("\n", 0, old.start()) + 1:old.start()]
+    if indent.strip():
+        indent = ""
+    lines = note.rstrip("\n").split("\n")
+    note = "\n".join(lines[:1] + [indent + line for line in lines[1:]]) + "\n"
+    return text[:old.start()] + note + text[old.end():]
 
 
 def place(text, note):
