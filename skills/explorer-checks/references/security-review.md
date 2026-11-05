@@ -66,7 +66,9 @@ reflected-XSS route on a static site. Check them specifically.
   that does not fit. Escaping at display is the second line, not the only
   one.
 - **Third-party code is pinned** (A08 · V3): CDN scripts name an exact
-  version. Integrity hashes are advisory, not required.
+  version (a range such as `d3@7` is the `supply:js-version-range`
+  advisory). Integrity hashes are advisory, not required. An exact pin is
+  not enough on its own: the next item checks that version.
 - **No mixed content** (A04 · V12): nothing loaded over `http:`.
 - **Dependencies are pinned and maintained** (A03 · V15): requirements
   name exact versions (the `supply:unpinned` advisory); workflow actions
@@ -74,7 +76,13 @@ reflected-XSS route on a static site. Check them specifically.
   runtime or library past its end of life, such as a Python version no
   longer receiving security fixes.
 - **Dependencies have no known vulnerabilities** (A03 · V15): pip-audit
-  result, or npm audit if there is a `package.json`.
+  for Python, npm audit if there is a `package.json`, and the `dep:`
+  findings for front-end JavaScript. CDN scripts that name an npm package
+  are looked up in OSV; files kept in the repository, and other script
+  URLs, are matched against Retire.js's signatures. Retire.js knows a few
+  dozen popular libraries, so a vendored file it does not recognise needs
+  its version checked by hand: open the file's banner and look it up at
+  github.com/advisories.
 - **Third parties a visitor's browser contacts** (V3): every
   `privacy:third-party` host is either needed and named in the note, or
   served from the explorer instead. Each one learns who visits which page,

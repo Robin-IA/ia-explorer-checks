@@ -8,7 +8,7 @@ three ways:
 | Check | Automated | Reviewed by Claude |
 |---|---|---|
 | **Code validity** | HTML parsing (html5lib), JSON, Python (ruff), the project's own tests, local links, JavaScript errors and failed requests on load | — |
-| **Code security** | credential patterns, markup sinks (`innerHTML` and kin), bandit, pip-audit, unpinned requirements and workflow actions, third-party hosts each page contacts, Pages on a private repo, live response headers; every item tagged with its OWASP Top 10:2025 category and ASVS 5.0.0 chapter | every sink traced to its data, plus [a checklist](skills/explorer-checks/references/security-review.md) |
+| **Code security** | credential patterns, markup sinks (`innerHTML` and kin), bandit, pip-audit, front-end JavaScript from a CDN or kept in the repo (OSV and Retire.js), unpinned requirements and workflow actions, third-party hosts each page contacts, Pages on a private repo, live response headers; every item tagged with its OWASP Top 10:2025 category and ASVS 5.0.0 chapter | every sink traced to its data, plus [a checklist](skills/explorer-checks/references/security-review.md) |
 | **Accessibility** | axe-core against WCAG 2.2 A/AA in headless Chromium, 320 px reflow, focus visibility | the AA criteria axe cannot settle, in [a checklist](skills/explorer-checks/references/wcag-manual-review.md) |
 
 It writes `security-accessibility-checks.md` into the explorer's repository,
