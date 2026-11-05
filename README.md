@@ -73,7 +73,8 @@ each step that reaches anyone else:
 3. If it applies fixes, it re-runs and shows you the new report before
    asking again.
 4. On a pass, it shows you the wording of the page statement and asks
-   before adding it.
+   before adding it, and whether it goes at the **top** of the page or the
+   **bottom**.
 5. Before any push, it says what will go (branch, commits, repository) and
    waits for a yes. Then it opens the pull request, or updates the
    existing one.
@@ -146,7 +147,8 @@ follows. In short:
    checkout, and Claude shows you what needs fixing.
 5. **Fix and re-run** if you say so.
 6. **On a pass**, and if you say so, `add_page_note.py` adds the
-   statement, and one more run confirms the page still passes with it.
+   statement, at the top of the main content or in the footer as you
+   choose, and one more run confirms the page still passes with it.
 7. **Push and open the PR** when you say so, then hand over for review
    and merge.
 
