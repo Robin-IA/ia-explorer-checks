@@ -24,11 +24,23 @@ string. Any of those can contain `<img src=x onerror=...>`. For each sink:
 3. Check the escaping function. A correct one replaces `&` first, then
    `<`, `>`, `"` and `'`. If a value goes into an attribute, the quotes
    matter. If it goes into `href` or `src`, check the scheme too, because
-   `javascript:` survives escaping.
+   `javascript:` survives escaping. No attribute is safe for every value:
+   keep element and attribute names fixed, and never put data in an
+   event handler (`onclick`).
+   **CSS is a context of its own.** If a value goes into a `style`
+   attribute or a `<style>` block, HTML escaping is not enough, because
+   the value can change the CSS around it. Clear it only if it is a
+   number, or one of a fixed set of values, or it is set with
+   `el.style.setProperty('<fixed name>', value)` after that check. A URL
+   in CSS (`url(...)`, `background-image`) gets the same scheme check as
+   `href`. Explorers do this often: colours per category, bar widths, map
+   markers.
 4. Verdict:
    - **cleared**: name the function or the literal source, for example
      "every data field goes through `esc()` (index.html:140), which
-     escapes &<>\"'".
+     escapes &<>\"'". Escaping every interpolated value, including ones
+     believed to be trusted, is the pattern to recommend: a value that is
+     safe today can come from data tomorrow.
    - **fail**: name the unescaped field. The fix is an `esc()` helper at
      that point, or building the node with `textContent`. Give the exact
      line to change.
@@ -97,9 +109,12 @@ reflected-XSS route on a static site. Check them specifically.
 
 - **Who can write** (A01 · V8, CSRF V3): every route that adds, edits or
   deletes checks who is asking, and forms that change data reject
-  cross-site requests (a CSRF token, or `SameSite` cookies plus an origin
-  check). Reading the routes is the check: list each write route in the
-  note with what protects it.
+  cross-site requests: a CSRF token, or `SameSite=Lax` or `Strict` **set
+  explicitly** plus an origin check. A browser default is not protection:
+  only Chromium treats an unset `SameSite` as `Lax`, and Firefox and
+  Safari do not. In Flask that means `SESSION_COOKIE_SAMESITE`, which is
+  unset by default. Reading the routes is the check: list each write
+  route in the note with what protects it.
 - **Fetches of submitted URLs** (A01 · V1, V5): if the server fetches a URL
   a contributor gave (a recording, a page to capture), it allows only the
   expected hosts and refuses private, loopback and link-local addresses
