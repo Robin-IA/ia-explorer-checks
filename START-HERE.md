@@ -152,6 +152,10 @@ on the explorer's page and asks before adding it:
 > checked 3 November 2026 by automated tests and manual review. Also
 > passes security and code validity checks. Read the report.
 
+You choose where it goes: at the **bottom**, in the page's footer, or at
+the **top**, as the first thing in the main content, below the header.
+You can move it later by asking Claude to.
+
 **Pushing.** Before anything goes to GitHub, Claude tells you what will go:
 the branch, the commits, the repository. On your yes it pushes a branch
 called `explorer-checks` and opens a pull request.

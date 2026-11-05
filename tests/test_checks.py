@@ -335,3 +335,47 @@ def test_note_stays_where_the_owner_moved_it(tmp_path):
     before = page.read_text(encoding="utf-8")
     run("add_page_note.py", page, "--report", report, "--report-url", url)
     assert page.read_text(encoding="utf-8") == before
+
+
+def test_note_at_top_and_moving_it(tmp_path):
+    page = tmp_path / "index.html"
+    page.write_text(GOOD_PAGE.replace("<body>", '<body><header>Site</header>'),
+                    encoding="utf-8")
+    report = tmp_path / "r.md"
+    render(tmp_path, [], {"manual": MANUAL}, report)
+    url = "https://github.com/x/y/blob/main/security-accessibility-checks.md"
+    note = ("add_page_note.py", page, "--report", report, "--report-url", url)
+
+    run(*note, "--position", "top")
+    text = page.read_text(encoding="utf-8")
+    assert text.index("<main>") < text.index("explorer-checks:note") < \
+        text.index("<h1>")
+    assert "margin:0 0 1em" in text
+
+    run(*note)  # a re-run without --position leaves it at the top
+    text = page.read_text(encoding="utf-8")
+    assert len(BLOCK.findall(text)) == 1
+    assert text.index("explorer-checks:note") < text.index("<h1>")
+    assert "margin:0 0 1em" in text
+
+    run(*note, "--position", "bottom")  # and --position moves it
+    text = page.read_text(encoding="utf-8")
+    assert len(BLOCK.findall(text)) == 1
+    assert text.index("<footer>") < text.index("explorer-checks:note") < \
+        text.index("</footer>")
+    assert "margin:1em 0 0" in text
+
+
+def test_note_at_top_without_main(tmp_path):
+    page = tmp_path / "index.html"
+    page.write_text("<!doctype html><html lang=en><title>t</title>"
+                    "<body><h1>t</h1></body></html>\n", encoding="utf-8")
+    report = tmp_path / "r.md"
+    render(tmp_path, [], {"manual": MANUAL}, report)
+    run("add_page_note.py", page, "--report", report, "--report-url",
+        "https://example.org/r", "--position", "top")
+    text = page.read_text(encoding="utf-8")
+    assert text.index("<body>") < text.index("<aside aria-label=") < \
+        text.index("<h1>")
+    run("add_page_note.py", page, "--remove")
+    assert "aside" not in page.read_text(encoding="utf-8")

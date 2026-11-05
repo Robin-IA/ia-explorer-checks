@@ -198,15 +198,27 @@ committed. If that is not the run to compare with, pass
 The note puts a public statement on the explorer's page: the accessibility
 standards met, that it passes the security and code validity checks, the
 date checked, and a link to the report. Show the user the wording before
-asking. Then:
+asking, and ask where it should go:
+
+- **Bottom** (the default): in the page's footer, where readers look for
+  this kind of statement.
+- **Top**: the first thing in the main content, below the header and skip
+  link, where every visitor sees it.
+
+If the page already carries the note, it stays where it is unless the user
+asks to move it. Then:
 
 1. Add the note to each checked page:
 
    ```bash
    python scripts/add_page_note.py ~/explorer-checks/<repo>/<page>.html \
        --report ~/explorer-checks/<repo>/security-accessibility-checks.md \
-       --report-url https://github.com/<org>/<repo>/blob/main/security-accessibility-checks.md
+       --report-url https://github.com/<org>/<repo>/blob/main/security-accessibility-checks.md \
+       --position bottom   # or top
    ```
+
+   Leave `--position` off on a re-run to keep the note where it is; pass it
+   to move the note.
 
    For an app, put the note in the template that renders the footer, by
    hand, between the same marker comments.
