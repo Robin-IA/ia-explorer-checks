@@ -61,11 +61,11 @@ gh auth status
 Copy and run these one at a time. The first two get the tool:
 
 ```bash
-git clone https://github.com/internetarchivecanada/ia-explorer-checks.git ~/ia-explorer-checks
+git clone https://github.com/internetarchivecanada/accessibility-security-checker.git ~/accessibility-security-checker
 ```
 
 ```bash
-cd ~/ia-explorer-checks
+cd ~/accessibility-security-checker
 ```
 
 A "Repository not found" error means you are not in the organization yet;
@@ -174,7 +174,7 @@ request, and lists what was fixed since the last one.
 standards and new vulnerabilities, and you get those changes by pulling:
 
 ```bash
-cd ~/ia-explorer-checks
+cd ~/accessibility-security-checker
 ```
 
 ```bash
@@ -197,7 +197,7 @@ If it says "out of date", run `python3 install.py` again.
 | A report item starting `tool:` | A checker did not run, for example with no network. The check cannot pass until it does. Fix the cause and re-run. |
 | Claude says an app would not start | Explorers that are Flask apps need their own setup. The report says what could not be checked. Start the app as its README says, then re-run. |
 | `gh` says you are not logged in | Run `gh auth login`. |
-| Claude doesn't recognise the request | Run `python3 install.py --check` in `~/ia-explorer-checks`, and install again if it is out of date. |
+| Claude doesn't recognise the request | Run `python3 install.py --check` in `~/accessibility-security-checker`, and install again if it is out of date. |
 
 **Reporting problems.** Open an issue on
 [Robin-IA/ia-explorer-checks](https://github.com/Robin-IA/ia-explorer-checks/issues),
@@ -208,7 +208,7 @@ does not take issues.
 
 | What | Where |
 |---|---|
-| This tool | `~/ia-explorer-checks` |
+| This tool | `~/accessibility-security-checker` |
 | The installed skill | `~/.claude/skills/explorer-checks` |
 | Explorers you have checked | `~/explorer-checks/<repo>/` |
 | The report for one explorer | `~/explorer-checks/<repo>/security-accessibility-checks.md` |

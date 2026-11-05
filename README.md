@@ -85,12 +85,12 @@ A yes covers one step, not the rest of the run.
 
 ## Install
 
-Internet Archive staff can clone the mirror in the internetarchivecanada
-organization:
+Internet Archive staff can clone the mirror, named
+`accessibility-security-checker`, in the internetarchivecanada organization:
 
 ```bash
-git clone https://github.com/internetarchivecanada/ia-explorer-checks.git
-cd ia-explorer-checks
+git clone https://github.com/internetarchivecanada/accessibility-security-checker.git
+cd accessibility-security-checker
 ```
 
 The mirror is read-only and follows `main` of the source repository,
