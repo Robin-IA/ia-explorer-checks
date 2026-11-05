@@ -6,6 +6,10 @@ result as a report, shows you what needs fixing, and asks before it
 changes anything. Once a project passes, it can put a dated statement of
 the result on the project's page.
 
+**New here? Read [START-HERE.md](START-HERE.md)**, the step-by-step recipe
+for setting it up and checking your first explorer. This README is the
+reference.
+
 ## What it is for
 
 Today it checks Internet Archive **explorers**: static sites and small
