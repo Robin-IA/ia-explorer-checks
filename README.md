@@ -82,11 +82,61 @@ did not run produces a finding, so it cannot pass silently.
 
 ## Example
 
+The Federal Pandemic Record explorer has a passing report:
+[security-accessibility-checks.md](https://github.com/internetarchivecanada/federal-pandemic-record-covid19/blob/main/security-accessibility-checks.md).
+It is the first full run, from the first report (not passing) on
+1 November 2026, through the fixes, to passing on 3 November. It was
+re-run on 5 November after each change to the page. The page carries the
+dated note, and the report shows the finished form: standards met, the
+completed manual checklists, the sinks cleared on review and why, and
+what was fixed between runs. It arrived through
+[internetarchivecanada/federal-pandemic-record-covid19#7](https://github.com/internetarchivecanada/federal-pandemic-record-covid19/pull/7),
+and the later re-runs came in with the changes that prompted them.
+
 [examples/covid19-trial-2026-10-30.md](examples/covid19-trial-2026-10-30.md)
-is the trial run against the Federal Pandemic Record mockup at commit
-`b88bae6d66`. The manual review in it is partial (security in full,
-accessibility on the keyboard and labelling items), so it shows the format
-and is not a complete audit. It was not pushed to that repository.
+is the earlier trial run against the same explorer's mockup at commit
+`b88bae6d66`. Its manual review is partial (security in full,
+accessibility on the keyboard and labelling items only), so it shows a
+report that is not passing, not a complete audit. It was never pushed to
+that repository.
+
+## What the checks draw on
+
+### Standards
+
+| Resource | Used for |
+|---|---|
+| [WCAG 2.2](https://www.w3.org/TR/WCAG22/) (W3C Recommendation), with [Understanding WCAG 2.2](https://www.w3.org/WAI/WCAG22/Understanding/) and the [quick reference](https://www.w3.org/WAI/WCAG22/quickref/) | The accessibility standard, Level A and AA. The [manual checklist](skills/explorer-checks/references/wcag-manual-review.md) is organized by success criterion. |
+| WCAG 2.1 and 2.0 | Met by meeting 2.2, apart from 4.1.1 Parsing, which the validity check covers. |
+| [Section 508](https://www.section508.gov/develop/applicability-conformance/) and [EN 301 549](https://www.etsi.org/deliver/etsi_en/301500_301599/301549/03.02.01_60/en_301549v030201p.pdf) clause 9 | Named in a passing report. They adopt WCAG 2.0 AA and 2.1 AA for web content, so the checks need nothing extra for them. |
+| [OWASP Top 10:2025](https://top10.owasp.org/2025/) | The risk category (`A01`–`A10`) on every security finding and checklist item. |
+| [OWASP ASVS 5.0.0](https://github.com/OWASP/ASVS/releases/tag/v5.0.0_release) | The chapter (`V1`–`V17`) on every security finding and item. Chapters rather than requirement numbers, because the numbers move between versions. A report states that this is not an ASVS verification at any level. |
+| [OWASP AISVS](https://github.com/OWASP/AISVS) 1.0 | The chapter on the AI items in the security checklist. |
+| [CWE](https://cwe.mitre.org/) | The weaknesses behind some security rules (for example CWE-79 cross-site scripting and CWE-798 hard-coded credentials). |
+
+### Guidance behind the recommended fixes
+
+| Resource | Used for |
+|---|---|
+| [OWASP Cheat Sheet Series](https://cheatsheetseries.owasp.org/) | Fixes for XSS, DOM XSS, CSP, SSRF, CSRF and file upload in the [security checklist](skills/explorer-checks/references/security-review.md). |
+| [OWASP Secure Headers Project](https://owasp.org/www-project-secure-headers/) | Which response headers the live-site check looks for, and their recommended values. |
+| [Mozilla HTTP Observatory](https://developer.mozilla.org/en-US/observatory) | A reference for what counts as passing on headers. |
+
+### Tools the checks run
+
+| Tool | Check |
+|---|---|
+| [axe-core](https://github.com/dequelabs/axe-core), pinned in `AXE_VERSION` in `check_browser.py`, run in headless Chromium through [Playwright](https://playwright.dev/python/) | Accessibility, plus JavaScript errors and failed requests on load |
+| [html5lib](https://github.com/html5lib/html5lib-python) | HTML parsing (validity) |
+| [ruff](https://docs.astral.sh/ruff/) | Python errors (validity) |
+| [bandit](https://github.com/PyCQA/bandit) | Python security |
+| [pip-audit](https://github.com/pypa/pip-audit) | Known vulnerabilities in Python dependencies |
+| [OSV.dev](https://osv.dev/) and [Retire.js](https://github.com/RetireJS/retire.js) | Known vulnerabilities in front-end JavaScript from a CDN or kept in the repository |
+
+Minimum versions are in [requirements.txt](requirements.txt).
+[watch/sources.md](watch/sources.md) lists the feeds that are read each
+week to keep all of this current. It also has a table of where each pinned
+version and cited standard lives in the code.
 
 ## Keeping the checks current
 
