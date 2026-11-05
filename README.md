@@ -1,9 +1,23 @@
 # Explorer checks
 
-A Claude Code skill that checks an Internet Archive explorer (a Wayback or
-archive.org collection explorer such as
-[federal-pandemic-record-covid19](https://github.com/internetarchivecanada/federal-pandemic-record-covid19))
-three ways:
+A Claude Code skill that checks a web project for **code validity**,
+**security** and **accessibility** (WCAG 2.2 Level AA). It writes the
+result as a report, shows you what needs fixing, and asks before it
+changes anything. Once a project passes, it can put a dated statement of
+the result on the project's page.
+
+## What it is for
+
+Today it checks Internet Archive **explorers**: static sites and small
+Flask apps that present a Wayback or archive.org collection, such as
+[federal-pandemic-record-covid19](https://github.com/internetarchivecanada/federal-pandemic-record-covid19).
+The checklists are written for what explorers do: render archive.org
+titles and Wayback text they did not write, filter with facets, draw
+histograms, and link out to the Wayback Machine. Most of it applies to any
+small web project. Pointing it at something that is not an explorer works,
+but expect a few checklist items to be `n/a` and a few gaps.
+
+## What it does
 
 | Check | Automated | Reviewed by Claude |
 |---|---|---|
@@ -11,21 +25,58 @@ three ways:
 | **Code security** | credential patterns, markup sinks (`innerHTML` and kin), bandit, pip-audit, front-end JavaScript from a CDN or kept in the repo (OSV and Retire.js), unpinned requirements and workflow actions, third-party hosts each page contacts, Pages on a private repo, live response headers; every item tagged with its OWASP Top 10:2025 category and ASVS 5.0.0 chapter | every sink traced to its data, plus [a checklist](skills/explorer-checks/references/security-review.md) |
 | **Accessibility** | axe-core against WCAG 2.2 A/AA in headless Chromium, 320 px reflow, focus visibility | the AA criteria axe cannot settle, in [a checklist](skills/explorer-checks/references/wcag-manual-review.md) |
 
-It writes `security-accessibility-checks.md` into the explorer's repository,
-on a branch, with a pull request. While anything is open, the report lists
-each item with a recommended fix. Re-run after fixing, as often as it takes.
-Once all three checks pass, the skill adds a dated note to the explorer's
-page that links to the report:
+The tools do the half they can. Claude does the other half: it traces each
+place data becomes markup, reads the page, tabs through it, and looks at it
+at 320 px and 200% zoom. A check passes only when both halves are complete.
 
-> Meets WCAG 2.2 Level AA accessibility (and WCAG 2.1 AA and 2.0 AA),
-> checked 3 November 2026 by automated tests and manual review. Also passes
-> security and code validity checks. Read the report.
+Each run produces three things:
 
-The note names the standards and the date checked. The report's "Standards
-met" section says how, and that it is a self-assessment: automated tools
-plus a code review find most problems, not all of them, and testing with
-people who use assistive technology is still worth doing. A later run that
-stops passing removes the note.
+- **A report**, `security-accessibility-checks.md`, in the explorer's
+  repository. While anything is open, it lists each item with a
+  recommended fix: the file, the element and the change. Finding ids are
+  stable, so each report also lists what was fixed since the last one.
+- **Fixes**, if you want them, one commit per check.
+- **A statement on the explorer's page**, once all three checks pass:
+
+  > Meets WCAG 2.2 Level AA accessibility (and WCAG 2.1 AA and 2.0 AA),
+  > checked 3 November 2026 by automated tests and manual review. Also
+  > passes security and code validity checks. Read the report.
+
+  The statement names the standards and the date checked, and links to the
+  report. The report's "Standards met" section says how they were checked
+  and that this is a self-assessment: automated tools plus a code review
+  find most problems, not all of them, and testing with people who use
+  assistive technology is still worth doing. A later run that stops
+  passing removes the statement.
+
+**Re-run it at any time**: after fixes, after any change to the explorer,
+or to re-date a passing report. A re-run updates the same report, the same
+branch and the same pull request.
+
+## It asks before changing anything
+
+The explorer is usually someone else's, and the person running the skill
+may not be its owner. So the skill works in a local checkout and asks at
+each step that reaches anyone else:
+
+1. It checks the explorer and writes the report **locally**, then shows
+   you the result: the status, every must-fix item in plain words with
+   its fix, and what it could not check.
+2. It asks what you want next: **apply the fixes**, **push the report as
+   it stands** for the owners to fix, or **stop** with nothing changed
+   upstream.
+3. If it applies fixes, it re-runs and shows you the new report before
+   asking again.
+4. On a pass, it shows you the wording of the page statement and asks
+   before adding it.
+5. Before any push, it says what will go (branch, commits, repository) and
+   waits for a yes. Then it opens the pull request, or updates the
+   existing one.
+6. It ends by handing over. **Review and merge are yours, or the
+   owners'**: read the diff, check the fixes on the page, and merge. The
+   skill never merges and never pushes to `main`.
+
+A yes covers one step, not the rest of the run.
 
 ## Install
 
@@ -39,19 +90,24 @@ python3 install.py
 again after pulling changes; `python3 install.py --check` says whether
 that's needed.
 
-## Use
+## Run it
 
-In Claude Code, from any directory:
+In Claude Code, from any directory, give it the explorer's GitHub URL or
+its live URL:
 
 > Run explorer checks on https://github.com/internetarchivecanada/federal-pandemic-record-covid19
 
-Claude clones the explorer into `~/explorer-checks/<repo>/`, runs the
-checks, reviews what the tools cannot decide, and asks before pushing
-anything to the explorer's repository. It never merges. That is the
-explorer owners' call.
+or, after fixes or changes:
+
+> Re-run the explorer checks on federal-pandemic-record-covid19
+
+Asking to check or audit an explorer's accessibility, WCAG compliance,
+security or code quality also starts it. Claude clones the explorer into
+`~/explorer-checks/<repo>/` and goes from there.
 
 The scripts also run on their own, which is useful for a quick look at a
-checkout:
+checkout. They produce findings only, with no review, report or
+pull request:
 
 ```bash
 python3 skills/explorer-checks/scripts/run_checks.py <checkout> --page mockup/
@@ -62,19 +118,20 @@ python3 skills/explorer-checks/scripts/run_checks.py <checkout> --page mockup/
 [SKILL.md](skills/explorer-checks/SKILL.md) is the procedure Claude
 follows. In short:
 
-1. **Check out** the explorer on branch `explorer-checks`, from an
-   up-to-date `main`.
-2. **Run** `run_checks.py`, which writes `findings.json`. Each finding is
-   `fail`, `review` (a tool cannot decide) or `advisory`.
+1. **Check out** the explorer locally on branch `explorer-checks`, from an
+   up-to-date `main`, or the existing branch on a re-run.
+2. **Run** `run_checks.py` against every view of the page. It writes
+   `findings.json`, where each finding is `fail`, `review` (a tool cannot
+   decide) or `advisory`.
 3. **Review**: Claude resolves every `review` item, works both checklists
    in the browser, and adds what the tools missed, in `review.json`.
-4. **Report**: `render_report.py` writes the report into the explorer, and
-   Claude opens or updates the PR.
-5. **Fix and re-run**, with Claude applying the recommended fixes if asked.
-   Finding ids are stable across runs, so the report lists what was fixed
-   since last time.
-6. **On a pass**, `add_page_note.py` adds the note, and one more run
-   confirms the page still passes with it.
+4. **Report**: `render_report.py` writes the report into the local
+   checkout, and Claude shows you what needs fixing.
+5. **Fix and re-run** if you say so.
+6. **On a pass**, and if you say so, `add_page_note.py` adds the
+   statement, and one more run confirms the page still passes with it.
+7. **Push and open the PR** when you say so, then hand over for review
+   and merge.
 
 A check passes only with no `fail` items, no unresolved `review` items and,
 for security and accessibility, a completed manual checklist. A tool that

@@ -1,6 +1,6 @@
 ---
 name: explorer-checks
-description: Check an Internet Archive explorer (a Wayback or archive.org collection explorer such as federal-pandemic-record-covid19) for code validity, code security and accessibility against WCAG 2.2 AA. Given the explorer's GitHub URL or live URL, it runs real tools (html5lib, ruff, bandit, pip-audit, axe-core in headless Chromium), reviews the code against written checklists, and writes security-accessibility-checks.md into the explorer repo on a branch with a pull request. The report lists every open item with a recommended fix. Re-run until it passes, at which point the skill adds a dated "checked" note to the explorer's page. Use whenever someone asks to check, audit or review an explorer's accessibility, WCAG compliance, security or code quality, or to re-run those checks after fixes.
+description: Check an Internet Archive explorer (a Wayback or archive.org collection explorer such as federal-pandemic-record-covid19) for code validity, code security and accessibility against WCAG 2.2 AA. Given the explorer's GitHub URL or live URL, it runs real tools (html5lib, ruff, bandit, pip-audit, axe-core in headless Chromium), reviews the code against written checklists, and writes security-accessibility-checks.md, which lists every open item with a recommended fix. It works in a local checkout and shows the user what needs fixing before anything leaves the machine; it applies fixes, pushes a branch or opens a pull request only after asking, and never merges. Re-run at any time; once all three checks pass it adds, with permission, a dated note to the explorer's page stating the security and accessibility result. Use whenever someone asks to check, audit or review an explorer's accessibility, WCAG compliance, security or code quality, or to re-run those checks after fixes.
 ---
 
 # Explorer checks
@@ -18,6 +18,14 @@ Three checks, one report, re-run until it passes:
 3. **Accessibility**: axe-core finds no WCAG 2.0/2.1/2.2 A or AA violation,
    the page reflows at 320 px, focus is visible, and the manual checklist
    in `references/wcag-manual-review.md` is complete.
+
+**Ask before every change that reaches someone else.** The explorer is
+probably not the user's, and the person running this may not be its owner.
+Cloning, checking and writing the report happen locally without asking.
+Applying fixes, adding the page note, pushing a branch and opening or
+updating a pull request each wait for the user's yes, given after they
+have seen what it covers. A yes covers that one step, not the rest of the
+run. Never merge, and never push to `main`.
 
 The scripts are the automated half. **You are the other half**, and a check
 cannot pass without you. Tools cannot tell escaped data from raw data, or
@@ -41,11 +49,13 @@ repos have more than one remote, and `main` can be stale.
 Work in `~/explorer-checks/<repo>/`. Clone if it is absent, otherwise fetch
 every remote. Then:
 
-- **First run:** confirm with the user before creating anything in the
-  explorer's repository, since it is probably someone else's. Then create
-  branch `explorer-checks` from the up-to-date `main`.
+- **First run:** create a local branch `explorer-checks` from the
+  up-to-date `main`. It stays local until step 6.
 - **Re-run:** if `explorer-checks` exists on the remote, check it out and
   pull. An open PR from it is the one to update. Do not start a second.
+  A re-run can come at any time (after fixes, after an unrelated change
+  to the explorer, or just to re-date a passing report), and it follows
+  the same steps.
 
 ## 2. Serve it
 
@@ -105,7 +115,7 @@ the docstring of `scripts/render_report.py`.
 Do not clear things to reach a pass. If a finding is real but minor,
 it stays `fail`; the fix is usually small.
 
-## 5. Write the report into the explorer
+## 5. Write the report, locally
 
 ```bash
 python scripts/render_report.py <findings.json> --review <review.json> \
@@ -115,23 +125,41 @@ python scripts/render_report.py <findings.json> --review <review.json> \
 The report is at the same path whether passing or not; each run replaces it.
 It records which ids were open, so the next run lists what was fixed.
 
-Commit it on `explorer-checks`, push, and open the PR, or update it if
-one exists:
+Commit it on the local `explorer-checks` branch. Do not push yet.
 
-```bash
-gh pr create --base main --head explorer-checks \
-    --title "Security and accessibility checks" --body "..."
-```
+## 6. Show the user, then ask
 
-The PR body gives the status line, the summary table, and the number of
-must-fix items per check. Link the report file. Merging is the explorer
-owners' call. Never merge it yourself, and never push to `main`.
+Tell the user, in this order:
 
-## 6. Fixes
+1. The status and the count of must-fix items per check. On a pass, the
+   accessibility standards met and the date checked, as the report's
+   "Standards met" section gives them.
+2. **A bulleted list of every must-fix item**, grouped by check. Give each
+   one line: what is wrong, in plain words, then how you would fix it
+   ("Search box has no visible label → add a `<label for="q">`"). Take
+   both from the report's titles and recommended fixes. Ids alone mean
+   nothing to the reader. A count without the list makes the user ask
+   what failed.
+3. What you could not check, such as an app that would not start, pages
+   behind a login, npm dependencies with no npm available, or the host a
+   self-hosted explorer runs on. A check that did not run did not pass.
+4. Where the report is on disk.
 
-Ask the user whether to apply the recommended fixes now. If yes, work one
-check at a time, in this order: validity (if anything failed), then
-security, then accessibility. For each:
+Then ask what to do next. The choices are:
+
+- **Apply the fixes** (step 7), then come back here with the new report.
+- **Push the report as it stands** and open a PR (step 9), so the owners
+  can fix it themselves.
+- **Stop.** The report stays on this machine, and nothing has changed in
+  the explorer's repository.
+
+Ask after the list, so the user knows what they are agreeing to. On a
+pass, the question is whether to add the page note (step 8).
+
+## 7. Fixes (only on a yes)
+
+Work one check at a time, in this order: validity (if anything failed),
+then security, then accessibility. For each:
 
 1. Run that check's script on its own, so the fixes start from what is
    there now, not from the last report:
@@ -145,9 +173,9 @@ security, then accessibility. For each:
    `check_browser.py` carries the accessibility checks.
 2. Apply that check's fixes, and verify them in the browser where they
    change behaviour (focus, keyboard, contrast).
-3. **One commit for the check**, listing each finding's id and its fix in
-   the message body (`Fix S-cd5758: escape …`). The report and the history
-   then tell the same story.
+3. **One local commit for the check**, listing each finding's id and its
+   fix in the message body (`Fix S-cd5758: escape …`). The report and the
+   history then tell the same story.
 
 Throughout:
 
@@ -157,14 +185,20 @@ Throughout:
   source, rotating a credential) stay in the report. Tell the user about
   them; do not guess.
 
-Then go back to step 3 and re-run all three checks together. Repeat until
-the report says passing, or until only owner decisions remain.
+Then go back to step 3 and re-run all three checks together, write the
+report (step 5) and show the user again (step 6). Repeat until the report
+says passing, until only owner decisions remain, or until the user stops.
 
 The report lists what was fixed by comparing with the report as last
 committed. If that is not the run to compare with, pass
 `--since <commit>` to `render_report.py`.
 
-## 7. When it passes
+## 8. When it passes: the page note (only on a yes)
+
+The note puts a public statement on the explorer's page: the accessibility
+standards met, that it passes the security and code validity checks, the
+date checked, and a link to the report. Show the user the wording before
+asking. Then:
 
 1. Add the note to each checked page:
 
@@ -179,30 +213,33 @@ committed. If that is not the run to compare with, pass
 2. **Re-run steps 3 to 5.** The note is new markup on a page that has to
    stay passing. The re-run also re-dates the report against the commit
    that carries the note.
-3. Commit and push, and update the PR body to say passing.
 
 If a later run stops passing, remove the note in the same branch
-(`add_page_note.py <page> --remove`). A stale claim is worse than none.
+(`add_page_note.py <page> --remove`) and tell the user you have. A stale
+claim is worse than none. The removal goes out with the next push.
 
-## What to tell the user
+## 9. Push and open the PR (only on a yes)
 
-At the end, in this order:
+Before pushing, say what will go: the branch, the commits on it (the
+report, any fixes, the note) and the repository. On a yes, push
+`explorer-checks` and open the PR, or update it if one exists:
 
-1. The status and the count of must-fix items per check. On a pass, the
-   accessibility standards met and the date checked, as the report's
-   "Standards met" section gives them.
-2. **A bulleted list of every must-fix item**, grouped by check. Give each
-   one line: what is wrong, in plain words, then how you would fix it
-   ("Search box has no visible label → add a `<label for="q">`"). Take
-   both from the report's titles and recommended fixes. Ids alone mean
-   nothing to the reader. A count without the list makes the user ask
-   what failed.
-3. The PR link.
-4. What you could not check, such as an app that would not start, pages
-   behind a login, npm dependencies with no npm available, or the host a
-   self-hosted explorer runs on.
+```bash
+gh pr create --base main --head explorer-checks \
+    --title "Security and accessibility checks" --body "..."
+```
 
-Say it plainly. A check that did not run did not pass.
+The PR body gives the status line, the summary table, and the number of
+must-fix items per check, lists the fixes applied, and links the report
+file.
 
-If you ask whether to apply the fixes, ask after the list, so the user
-knows what they are agreeing to.
+## 10. Hand over
+
+End with:
+
+1. The PR link and the status it carries.
+2. **The review and merge are the owners'.** Tell the user to read the
+   diff, check the fixes on the page, and merge, or pass the PR to the
+   explorer's owners if that is not them. The report's claim is about the
+   commit that was checked; changes before the merge need a re-run.
+3. Anything still open: owner decisions, and what could not be checked.
