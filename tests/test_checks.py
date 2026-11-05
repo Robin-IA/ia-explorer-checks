@@ -317,3 +317,21 @@ def test_note_on_page_without_footer_or_body(tmp_path):
 
     run("add_page_note.py", page, "--remove")
     assert page.read_text(encoding="utf-8") == bare
+
+
+def test_note_stays_where_the_owner_moved_it(tmp_path):
+    page = tmp_path / "index.html"
+    page.write_text(GOOD_PAGE, encoding="utf-8")
+    report = tmp_path / "r.md"
+    render(tmp_path, [], {"manual": MANUAL}, report)
+    url = "https://github.com/x/y/blob/main/security-accessibility-checks.md"
+    run("add_page_note.py", page, "--report", report, "--report-url", url)
+    # The owner moves the block to the top of <main>, indented.
+    text = page.read_text(encoding="utf-8")
+    block = BLOCK.search(text).group(0)
+    moved = "".join("    " + line for line in block.splitlines(True))
+    page.write_text(BLOCK.sub("", text).replace("<main>", "<main>\n" + moved),
+                    encoding="utf-8")
+    before = page.read_text(encoding="utf-8")
+    run("add_page_note.py", page, "--report", report, "--report-url", url)
+    assert page.read_text(encoding="utf-8") == before
