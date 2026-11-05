@@ -1,14 +1,14 @@
 """Add, refresh or remove the "checked" note on an explorer page.
 
     python add_page_note.py <page.html> --report <explorer>/security-accessibility-checks.md
-                            --report-url https://github.com/<org>/<repo>/blob/main/security-accessibility-checks.md
                             [--position top|bottom] [--print]
     python add_page_note.py <page.html> --remove
 
 It refuses to add the note unless the report says passing. The note names
-the accessibility standards met, the date they were checked and how, and
-links to the report, whose "Standards met" and "What a pass means"
-sections give the detail and the limits. A run that stops passing should
+the accessibility standards met and the date they were checked and how.
+It does not link to the report: the report is filed in the explorer's
+repository for its owner to review, and its "Standards met" and "What a
+pass means" sections give the detail and the limits. A run that stops passing should
 remove the note, since an out-of-date claim is worse than none.
 
 The note sits between marker comments, so re-running replaces it in place,
@@ -57,7 +57,6 @@ NOTE = """{start}
   Meets {standard} accessibility (and {also}), checked
   <time datetime="{iso}">{human}</time> by automated tests and manual review.
   Also passes security and code validity checks.
-  <a href="{url}">Read the report</a>.
 </p>
 {end}
 """
@@ -67,7 +66,6 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("page")
     ap.add_argument("--report")
-    ap.add_argument("--report-url")
     ap.add_argument("--position", choices=("top", "bottom"),
                     help="where to put the note; moves an existing one")
     ap.add_argument("--remove", action="store_true")
@@ -85,8 +83,8 @@ def main():
         print(f"note removed from {page}")
         return 0
 
-    if not (args.report and args.report_url):
-        sys.exit("--report and --report-url are required to add the note")
+    if not args.report:
+        sys.exit("--report is required to add the note")
     state = previous_open(pathlib.Path(args.report))
     if not state or not state.get("passing"):
         sys.exit("the report does not say passing; not adding the note")
@@ -95,7 +93,7 @@ def main():
     position = args.position or "bottom"
     note = NOTE.format(start=START, end=END, standard=STANDARD, also=ALSO_MET,
                        iso=day.isoformat(), human=f"{day.day} {day:%B %Y}",
-                       url=args.report_url, size=SIZE,
+                       size=SIZE,
                        margin="0 0 1em" if position == "top" else "1em 0 0")
 
     if old and not args.position:

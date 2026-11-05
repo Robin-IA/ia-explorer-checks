@@ -152,7 +152,10 @@ page, and asks before adding it:
 
 > Meets WCAG 2.2 Level AA accessibility (and WCAG 2.1 AA and 2.0 AA),
 > checked 3 November 2026 by automated tests and manual review. Also
-> passes security and code validity checks. Read the report.
+> passes security and code validity checks.
+
+The statement does not link to the report. The report is filed in your
+explorer's repository for your review, as the tool's output.
 
 You choose how it's added:
 

@@ -49,10 +49,11 @@ Each run produces three things:
 
   > Meets WCAG 2.2 Level AA accessibility (and WCAG 2.1 AA and 2.0 AA),
   > checked 3 November 2026 by automated tests and manual review. Also
-  > passes security and code validity checks. Read the report.
+  > passes security and code validity checks.
 
-  The statement names the standards and the date checked, and links to the
-  report. The report's "Standards met" section says how they were checked
+  The statement names the standards and the date checked. It does not link
+  to the report: the report is filed in the explorer's repository for your
+  review, as the tool's output, and is not part of the page. The report's "Standards met" section says how they were checked
   and that this is a self-assessment: automated tools plus a code review
   find most problems, not all of them, and testing with people who use
   assistive technology is still worth doing. A later run that stops

@@ -205,9 +205,11 @@ committed. If that is not the run to compare with, pass
 ## 8. When it passes: the page note (only on a yes)
 
 The note puts a public statement on the explorer's page: the accessibility
-standards met, that it passes the security and code validity checks, the
-date checked, and a link to the report. Show the user the wording, then
-ask how they want it added. Three choices:
+standards met, that it passes the security and code validity checks, and
+the date checked. It does not link to the report: the report is filed in
+the explorer's repository for the owner's review, as the run's output, and
+is not part of the page. Show the user the wording, then ask how they want
+it added. Three choices:
 
 - **Bottom** (the default): in the page's footer, where readers look for
   this kind of statement.
@@ -227,7 +229,7 @@ asks to move it.
 **Top or bottom.** Add the note to each checked page:
 
 ```bash
-"$PY" scripts/add_page_note.py ~/explorer-checks/<repo>/<page>.html     --report ~/explorer-checks/<repo>/security-accessibility-checks.md     --report-url https://github.com/<org>/<repo>/blob/main/security-accessibility-checks.md     --position bottom   # or top
+"$PY" scripts/add_page_note.py ~/explorer-checks/<repo>/<page>.html     --report ~/explorer-checks/<repo>/security-accessibility-checks.md     --position bottom   # or top
 ```
 
 Leave `--position` off on a re-run to keep the note where it is; pass it
