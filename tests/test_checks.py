@@ -107,6 +107,71 @@ def test_supply_chain_and_flask_secret(site, tmp_path):
     assert any("app.py" in f.where for f in by_rule["secret:named-literal"])
 
 
+FAKE_RETIRE = {"jquery": {
+    "npmname": "jquery",
+    "extractors": {"filename": ["jquery-(§§version§§)(\\.min)?\\.js"],
+                   "filecontent": ["/\\*!? jQuery v(§§version§§)"],
+                   "func": ["jQuery.fn.jquery"]},
+    "vulnerabilities": [{"atOrAbove": "1.2.0", "below": "3.5.0",
+                         "severity": "medium",
+                         "identifiers": {"summary": "XSS in htmlPrefilter",
+                                         "githubID": "GHSA-gxr4-xjj5-5px2"}},
+                        {"below": "1.9.0", "severity": "medium",
+                         "identifiers": {"CVE": ["CVE-2012-6708"]}}]}}
+
+
+def test_js_libraries(tmp_path):
+    from js_libraries import check_js_libraries
+    root = tmp_path / "site"
+    (root / "js").mkdir(parents=True)
+    cdn = "https://cdn.jsdelivr.net/npm/dompurify@3.4.16/dist/purify.min.js"
+    (root / "index.html").write_text(
+        f'<script src="{cdn}"></script>\n<script src="{cdn}"></script>\n'
+        '<script src="https://unpkg.com/d3@7"></script>\n', encoding="utf-8")
+    (root / "js" / "lib.js").write_text("/*! jQuery v3.4.1 | (c) */\n",
+                                        encoding="utf-8")
+    (root / "js" / "jquery-3.4.1.min.js").write_text("", encoding="utf-8")
+    asked = []
+
+    def osv(pkg, ver):
+        asked.append((pkg, ver))
+        return [{"id": "GHSA-cg2g-xh64-v4q7", "summary": "bypass",
+                 "database_specific": {"severity": "CRITICAL"},
+                 "affected": [{"ranges": [{"events": [
+                     {"introduced": "3.4.4"}, {"fixed": "3.4.17"}]}]}]}]
+
+    findings = []
+    check_js_libraries(root, findings, osv=osv, repo=FAKE_RETIRE)
+    got = {(f.rule, f.key, f.status) for f in findings}
+    assert asked == [("dompurify", "3.4.16")] * 2
+    assert ("dep:GHSA-cg2g-xh64-v4q7", "dompurify@3.4.16", "fail") in got
+    assert ("supply:js-version-range", "d3@7", "advisory") in got
+    assert ("dep:GHSA-gxr4-xjj5-5px2", "jquery@3.4.1", "fail") in got
+    # 3.4.1 is not below 1.9.0; the same library twice in a file is one
+    # finding; the filename's ".min" is not part of the version.
+    assert not any(f.rule == "dep:CVE-2012-6708" for f in findings)
+    assert sorted(f.where for f in findings if f.key == "jquery@3.4.1") == \
+        ["js/jquery-3.4.1.min.js", "js/lib.js"]
+    assert len(findings) == 4
+    assert all(f.owasp == "A03:2025 · ASVS V15" for f in findings)
+
+
+def test_js_library_lookup_failure_is_reported(tmp_path):
+    from js_libraries import check_js_libraries
+    root = tmp_path / "site"
+    root.mkdir()
+    (root / "index.html").write_text(
+        '<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">'
+        '</script>', encoding="utf-8")
+
+    def down(pkg, ver):
+        raise OSError("no network")
+
+    findings = []
+    check_js_libraries(root, findings, osv=down, repo={})
+    assert [f.rule for f in findings] == ["tool:osv"]
+
+
 def test_meta_csp_found(site):
     from check_security import meta_csp_pages
     assert meta_csp_pages(site) == []

@@ -6,6 +6,10 @@ An explorer's main risk is XSS. It renders text it did not write: archive.org
 titles, Wayback page text, donor metadata. So every place the page turns a
 string into markup is reported for review. The scanner cannot tell an
 escaped string from a raw one, but Claude reading the code can.
+
+Dependencies are audited whether they are Python (pip-audit), front-end
+JavaScript loaded from a CDN or kept in the repository (js_libraries.py), or
+GitHub Actions.
 """
 
 import argparse
@@ -18,6 +22,7 @@ import urllib.request
 
 from common import (Finding, line_of, read_text, rel, repo_files,
                     source_line, write_findings)
+from js_libraries import check_js_libraries
 
 TEXT_SUFFIXES = {".py", ".js", ".mjs", ".ts", ".html", ".htm", ".json",
                  ".yml", ".yaml", ".toml", ".cfg", ".ini", ".sh", ".md",
@@ -395,6 +400,7 @@ def main():
     scan_text(root, findings)
     run_bandit(root, findings)
     run_dependency_audit(root, findings)
+    check_js_libraries(root, findings)
     check_pins(root, findings)
     check_actions(root, findings)
     check_pages(root, findings)
