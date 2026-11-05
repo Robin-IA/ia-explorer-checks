@@ -241,3 +241,32 @@ python3 -m pytest
 
 Built by Robin Fay, Project Manager, Digital Collections, Democracy's
 Library.
+
+### How it was built
+
+Robin built it with [Claude Code](https://claude.com/claude-code), working
+with Claude Opus 5.5, between 30 October and 5 November 2026. Robin
+decided what the checks should cover, chose the standards, and reviewed
+and merged every change. Claude wrote the code, the checklists and the
+documentation. Each commit names Claude as co-author.
+
+It is a Claude Code skill, in three parts:
+
+- **A procedure**, [SKILL.md](skills/explorer-checks/SKILL.md), that Claude
+  follows on each run.
+- **Python scripts** for the automated half: they run the tools, collect
+  findings, write the report and add the page note.
+- **Two checklists**, for the half only a reader can do.
+
+It was built against a real explorer,
+[federal-pandemic-record-covid19](https://github.com/internetarchivecanada/federal-pandemic-record-covid19).
+Each run on it showed something the skill missed or got wrong: views the
+browser never opened, a content security policy that blocked axe, a
+"fixed" list that vanished on a second render, a page with no `<footer>`.
+Each became a fix and a test here, until that explorer passed.
+
+Every change after the first commit came through a pull request from a
+branch, with the tests run before it was merged. Some came from the
+weekly watch (see [Keeping the checks current](#keeping-the-checks-current)).
+Its first run found four, among them an axe-core four minor releases out
+of date and front-end JavaScript that nothing was checking.
