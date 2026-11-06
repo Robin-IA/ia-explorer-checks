@@ -1,5 +1,11 @@
 # Explorer checks
 
+> **Source and mirror.** This is developed at
+> [Robin-IA/ia-explorer-checks](https://github.com/Robin-IA/ia-explorer-checks).
+> [internetarchivecanada/accessibility-security-checker](https://github.com/internetarchivecanada/accessibility-security-checker)
+> is a read-only **mirror** of it, following its `main`: open pull requests
+> on the Robin-IA source, not on the mirror.
+
 A Claude Code skill that checks a web project for **code validity**,
 **security** and **accessibility** (WCAG 2.2 Level AA). It writes the
 result as a report, shows you what needs fixing, and asks before it
@@ -12,7 +18,8 @@ reference.
 
 **Feedback or a problem?** Use the
 [feedback form](https://github.com/internetarchivecanada/accessibility-security-checker/issues/new?template=feedback.yml).
-It opens a public issue here and goes straight to the maintainer.
+It opens an issue on the internetarchivecanada mirror, which only
+Internet Archive staff can see, and goes straight to the maintainer.
 
 ## What it is for
 
