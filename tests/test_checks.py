@@ -295,6 +295,8 @@ def test_note_only_when_passing(tmp_path):
     assert "30 October 2026" in text
     assert "Meets WCAG 2.2 Level AA accessibility" in text
     assert "<a " not in BLOCK.search(text).group(0)  # the report is not linked
+    note = BLOCK.search(text).group(0).lower()
+    assert "security" not in note and "validity" not in note  # not published
     assert "## Standards met" in report.read_text(encoding="utf-8")
 
     run("add_page_note.py", page, "--remove")
