@@ -1,6 +1,6 @@
 ---
 name: explorer-checks
-description: Check an Internet Archive explorer (a Wayback or archive.org collection explorer such as federal-pandemic-record-covid19) for code validity, code security and accessibility against WCAG 2.2 AA. Given the explorer's GitHub URL or live URL, it runs real tools (html5lib, ruff, bandit, pip-audit, axe-core in headless Chromium), reviews the code against written checklists, and writes security-accessibility-checks.md, which lists every open item with a recommended fix. It works in a local checkout and shows the user what needs fixing before anything leaves the machine; it applies fixes, pushes a branch or opens a pull request only after asking, and never merges. Re-run at any time; once all three checks pass it adds, with permission, a dated note to the explorer's page stating the security and accessibility result. Use whenever someone asks to check, audit or review an explorer's accessibility, WCAG compliance, security or code quality, or to re-run those checks after fixes.
+description: Check an Internet Archive explorer (a Wayback or archive.org collection explorer such as federal-pandemic-record-covid19) for code validity, code security and accessibility against WCAG 2.2 AA. Given the explorer's GitHub URL or live URL, it runs real tools (html5lib, ruff, bandit, pip-audit, axe-core in headless Chromium), reviews the code against written checklists, and writes security-accessibility-checks.md, which lists every open item with a recommended fix. It works in a local checkout and shows the user what needs fixing before anything leaves the machine; it applies fixes, pushes a branch or opens a pull request only after asking, and never merges. Re-run at any time; once all three checks pass it adds, with permission, a dated accessibility statement to the explorer's page; security and code validity results are never published on the page. Use whenever someone asks to check, audit or review an explorer's accessibility, WCAG compliance, security or code quality, or to re-run those checks after fixes.
 ---
 
 # Explorer checks
@@ -205,8 +205,11 @@ committed. If that is not the run to compare with, pass
 ## 8. When it passes: the page note (only on a yes)
 
 The note puts a public statement on the explorer's page: the accessibility
-standards met, that it passes the security and code validity checks, and
-the date checked. It does not link to the report: the report is filed in
+standards met and the date checked. All three checks must pass before it
+goes on, but it says nothing about security or code validity. Those
+results are not published on the page, in the note or anywhere else: do
+not add a security or validity claim to the page, its About page or its
+footer, and remove one if you find it. It does not link to the report: the report is filed in
 the explorer's repository for the owner's review, as the run's output, and
 is not part of the page. Show the user the wording, then ask how they want
 it added. Three choices:

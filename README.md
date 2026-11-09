@@ -55,10 +55,11 @@ Each run produces three things:
 - **A statement on the explorer's page**, once all three checks pass:
 
   > Meets WCAG 2.2 Level AA accessibility (and WCAG 2.1 AA and 2.0 AA),
-  > checked 3 November 2026 by automated tests and manual review. Also
-  > passes security and code validity checks.
+  > checked 3 November 2026 by automated tests and manual review.
 
-  The statement names the standards and the date checked. It does not link
+  The statement names the accessibility standards and the date checked.
+  Security and code validity must pass too, but are not published on the
+  page. It does not link
   to the report: the report is filed in the explorer's repository for your
   review, as the tool's output, and is not part of the page. The report's "Standards met" section says how they were checked
   and that this is a self-assessment: automated tools plus a code review

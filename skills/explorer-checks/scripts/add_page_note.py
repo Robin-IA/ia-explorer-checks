@@ -6,6 +6,8 @@
 
 It refuses to add the note unless the report says passing. The note names
 the accessibility standards met and the date they were checked and how.
+It says nothing about security or code validity: those are checked, and
+must pass before the note goes on, but they are not published.
 It does not link to the report: the report is filed in the explorer's
 repository for its owner to review, and its "Standards met" and "What a
 pass means" sections give the detail and the limits. A run that stops passing should
@@ -56,7 +58,6 @@ NOTE = """{start}
 <p class="explorer-checks-note" style="font-size:{size};margin:{margin}">
   Meets {standard} accessibility (and {also}), checked
   <time datetime="{iso}">{human}</time> by automated tests and manual review.
-  Also passes security and code validity checks.
 </p>
 {end}
 """
