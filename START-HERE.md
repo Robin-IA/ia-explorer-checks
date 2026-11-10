@@ -21,8 +21,7 @@ accessibility and security issues. Once set up, you just chat with Claude!
 - **[SKILL.md](skills/explorer-checks/SKILL.md)** is the procedure Claude
   follows.
 - **[Feedback form](https://github.com/internetarchivecanada/accessibility-security-checker/issues/new?template=feedback.yml)**:
-  tell us about a problem or a suggestion. Claude also asks for feedback at
-  the end of every check.
+  tell us about a problem or a suggestion.
 
 ## Contents
 

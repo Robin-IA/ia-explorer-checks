@@ -180,8 +180,12 @@ follows. In short:
    choose, and one more run confirms the page still passes with it.
 7. **Push and open the PR** when you say so, then hand over for review
    and merge.
-8. **Ask for feedback** on the checker itself. If you give some, Claude
-   shows you the issue it would file, and files it on your yes.
+8. **Or file issues** instead of a PR: one per must-fix item, each asked
+   about first, labelled `checker`, `bug` and `fix`, with an
+   **Instructions for Claude** section for whoever fixes it.
+9. **Write a validation report**, `explorer-validation-report.md`: what
+   each finding is, and whether it is accessibility, security, code
+   validity, or a missing best-practice element.
 
 A check passes only with no `fail` items, no unresolved `review` items and,
 for security and accessibility, a completed manual checklist. A tool that
