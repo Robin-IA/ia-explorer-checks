@@ -292,7 +292,7 @@ def test_note_only_when_passing(tmp_path):
     text = page.read_text(encoding="utf-8")
     assert len(BLOCK.findall(text)) == 1
     assert text.index("explorer-checks:note") < text.index("</footer>")
-    assert "30 October 2026" in text
+    assert "October 30, 2026" in text  # US English, as the guide asks
     assert "Meets WCAG 2.2 Level AA accessibility" in text
     assert "<a " not in BLOCK.search(text).group(0)  # the report is not linked
     note = BLOCK.search(text).group(0).lower()
