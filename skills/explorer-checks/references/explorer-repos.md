@@ -24,6 +24,19 @@ fixed.
 `meetings` and `wbm-collections-explorer` differ. The live URL's path is not
 proof of the repository name.
 
+## Cloning someone else's repository
+
+A crafted repository can make Git run code on the machine that clones it
+when submodules are followed (CVE-2026-111760, Git's advisory of
+2026-11-10). This holds whatever Git version is installed:
+
+- Clone and fetch **without** `--recurse-submodules`. Never run
+  `git submodule init` or `git submodule update` in an explorer checkout,
+  and never set `submodule.recurse`.
+- If the explorer has a `.gitmodules`, say so in the report and check only
+  what is in the repository itself. A submodule's contents are another
+  repository's to check.
+
 ## Who owns the repository
 
 The explorer is usually not the user's own. So:

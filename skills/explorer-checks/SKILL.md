@@ -56,7 +56,8 @@ Read `references/explorer-repos.md` before touching the checkout. Explorer
 repos have more than one remote, and `main` can be stale.
 
 Work in `~/explorer-checks/<repo>/`. Clone if it is absent, otherwise fetch
-every remote. Then:
+every remote, never following submodules (see "Cloning someone else's
+repository" there). Then:
 
 - **First run:** create a local branch `explorer-checks` from the
   up-to-date `main`. It stays local until step 6.
