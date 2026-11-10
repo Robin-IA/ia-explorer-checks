@@ -17,6 +17,23 @@ edited.
   with `sync_mirror.py` after every merge, so both show the same history.
   Each entry says whether the mirror was synced.
 
+## 2026-11-10: weekly watch
+
+**Watch review.** Weekly run, window 2026-11-02 to 2026-11-10: three
+issues filed. #41 and #42 follow Git's security release (CVE-2026-111760,
+recursive clones can run code, and five more); #43 follows CISA's listing
+of CVE-2026-125350, an exploited Chromium bug, in the browser the checks
+run. See the history entry (#44, merged).
+
+**Changes**
+
+- this PR: never clone or update an explorer's submodules (closes #41).
+- Left open for a decision: #42 (minimum Git: Homebrew still has 2.56.0,
+  which is not fixed) and #43 (no Playwright release has a Chromium
+  confirmed to fix CVE-2026-125350).
+
+**VERSION** 2026.11.10.5. **Mirror** synced after merge.
+
 ## 2026-11-10: Git added to the watch list
 
 **Watch review.** Git's security release of 2026-11-10 (Git 2.56.1 and
