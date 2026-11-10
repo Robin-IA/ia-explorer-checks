@@ -127,7 +127,15 @@ reflected-XSS route on a static site. Check them specifically.
   a contributor gave (a recording, a page to capture), it allows only the
   expected hosts and refuses private, loopback and link-local addresses
   after resolving the name. Otherwise a contributor can make the server
-  read the network it sits on.
+  read the network it sits on. **Normalize before comparing**: unwrap an
+  IPv4-mapped address (`ipaddress.ip_address(a).ipv4_mapped`), and refuse
+  NAT64 addresses (`64:ff9b::/96`, `64:ff9b:1::/48`) or check the IPv4
+  address embedded in them, because Python reports
+  `64:ff9b::a9fe:a9fe`, which reaches `169.254.169.254` through a NAT64
+  gateway, as global. Then check every address the name resolves to. A
+  pass needs both steps
+  ([OWASP SSRF Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html),
+  2026-11-08).
 - **Scope of writes** (A06 · V5): uploads check type and size, stored
   names are generated rather than taken from the upload, and contributed
   text is escaped where it is shown.
