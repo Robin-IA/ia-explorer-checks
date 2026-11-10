@@ -229,7 +229,7 @@ that repository.
 | [Section 508](https://www.section508.gov/develop/applicability-conformance/) and [EN 301 549](https://www.etsi.org/deliver/etsi_en/301500_301599/301549/03.02.01_60/en_301549v030201p.pdf) clause 9 | Named in a passing report. They adopt WCAG 2.0 AA and 2.1 AA for web content, so the checks need nothing extra for them. |
 | [OWASP Top 10:2025](https://top10.owasp.org/2025/) | The risk category (`A01`–`A10`) on every security finding and checklist item. |
 | [OWASP ASVS 5.0.0](https://github.com/OWASP/ASVS/releases/tag/v5.0.0_release) | The chapter (`V1`–`V17`) on every security finding and item. Chapters rather than requirement numbers, because the numbers move between versions. A report states that this is not an ASVS verification at any level. |
-| [OWASP AISVS](https://github.com/OWASP/AISVS) 1.0 | The chapter on the AI items in the security checklist. |
+| [OWASP AISVS](https://github.com/OWASP/AISVS/releases/tag/v1.01) 1.01 | The chapter on the AI items in the security checklist. |
 | [CWE](https://cwe.mitre.org/) | The weaknesses behind some security rules (for example CWE-79 cross-site scripting and CWE-798 hard-coded credentials). |
 
 ### Guidance behind the recommended fixes
@@ -263,13 +263,19 @@ reads the sources in
 [watch/sources.md](watch/sources.md): OWASP standards, vulnerability feeds,
 reference scanners, axe-core and WCAG. It compares what changed against what
 the checks pin and cite. Each change the checks need becomes an issue
-labelled `watch`. The task does not edit the checks itself. To watch
+labelled `watch`. The task then makes the changes those issues call
+for, through a pull request it merges, and syncs the mirror. To watch
 something else, add it to that file.
 
 [watch/watch-history.md](watch/watch-history.md) records each run: the
 date, the window, every source read or not read, and the issues that came
-of it. The task adds its entry in a pull request of its own, and manual
-checks are recorded there too.
+of it. The task adds its entry in a pull request of its own and merges it,
+and manual checks are recorded there too.
+
+[UPDATE-HISTORY.md](UPDATE-HISTORY.md) is the short record for everyone:
+that each week's watch review happened, and every change made to the
+checks since, with its pull request, the issues it closed, the version, and
+the mirror sync.
 
 Installing the skill does not install the watch. You get the checks as
 of your last pull, so pull and re-run `install.py` to pick up what the

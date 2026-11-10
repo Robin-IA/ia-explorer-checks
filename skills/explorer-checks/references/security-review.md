@@ -6,7 +6,7 @@ compare across explorers.
 
 Each item names its category in the OWASP Top 10:2025 (`A01`–`A10`) and
 the ASVS 5.0.0 chapter (`V1`–`V17`) that holds its requirements; AI items
-name the AISVS 1.0 chapter. Chapters, not requirement numbers, because the
+name the [AISVS 1.01](https://github.com/OWASP/AISVS/releases/tag/v1.01) chapter. Chapters, not requirement numbers, because the
 numbers move between versions. A finding of your own in `review.json` takes
 the same tag in an `owasp` field, for example `"owasp": "A01:2025 · ASVS V8"`.
 
@@ -127,7 +127,15 @@ reflected-XSS route on a static site. Check them specifically.
   a contributor gave (a recording, a page to capture), it allows only the
   expected hosts and refuses private, loopback and link-local addresses
   after resolving the name. Otherwise a contributor can make the server
-  read the network it sits on.
+  read the network it sits on. **Normalize before comparing**: unwrap an
+  IPv4-mapped address (`ipaddress.ip_address(a).ipv4_mapped`), and refuse
+  NAT64 addresses (`64:ff9b::/96`, `64:ff9b:1::/48`) or check the IPv4
+  address embedded in them, because Python reports
+  `64:ff9b::a9fe:a9fe`, which reaches `169.254.169.254` through a NAT64
+  gateway, as global. Then check every address the name resolves to. A
+  pass needs both steps
+  ([OWASP SSRF Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html),
+  2026-11-08).
 - **Scope of writes** (A06 · V5): uploads check type and size, stored
   names are generated rather than taken from the upload, and contributed
   text is escaped where it is shown.
@@ -140,7 +148,10 @@ reflected-XSS route on a static site. Check them specifically.
 - **Model output is untrusted** (A05 · AISVS Model Behavior, Output
   Control & Safety Assurance): transcripts and generated text are escaped
   like any other data, and nothing from a model is executed or used as a
-  URL without the same checks as harvested data.
+  URL without the same checks as harvested data. A model's output never
+  decides on its own whether a write or publish goes ahead; if it does
+  gate one, a refusal, a failure or an answer that cannot be read means
+  stop (AISVS 1.01 C7.1.3).
 - **Models are pinned** (A03 · AISVS Supply Chain Security for Models):
   downloaded weights name a revision or hash, not "latest".
 
