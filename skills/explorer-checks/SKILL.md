@@ -1,6 +1,6 @@
 ---
 name: explorer-checks
-description: Check an Internet Archive explorer (a Wayback or archive.org collection explorer such as federal-pandemic-record-covid19) for code validity, code security and accessibility against WCAG 2.2 AA. Given the explorer's GitHub URL or live URL, it runs real tools (html5lib, ruff, bandit, pip-audit, axe-core in headless Chromium), reviews the code against written checklists, and writes security-accessibility-checks.md, which lists every open item with a recommended fix. It works in a local checkout and shows the user what needs fixing before anything leaves the machine; it applies fixes, pushes a branch or opens a pull request only after asking, and never merges. Re-run at any time; once all three checks pass it adds, with permission, a dated accessibility statement to the explorer's page; security and code validity results are never published on the page. Use whenever someone asks to check, audit or review an explorer's accessibility, WCAG compliance, security or code quality, or to re-run those checks after fixes.
+description: Check an Internet Archive explorer (a Wayback or archive.org collection explorer such as federal-pandemic-record-covid19) for code validity, code security and accessibility against WCAG 2.2 AA. Given the explorer's GitHub URL or live URL, it runs real tools (html5lib, ruff, bandit, pip-audit, axe-core in headless Chromium), reviews the code against written checklists, and writes security-accessibility-checks.md, which lists every open item with a recommended fix. It works in a local checkout and shows the user what needs fixing before anything leaves the machine; it applies fixes, pushes a branch, opens a pull request or files issues (labelled checker, bug and fix, each with Instructions for Claude) only after asking about each, and never merges. Every run ends with explorer-validation-report.md, which says whether each finding is accessibility, security, code validity or a missing best-practice element. Re-run at any time; once all three checks pass it adds, with permission, a dated accessibility statement to the explorer's page; security and code validity results are never published on the page. Use whenever someone asks to check, audit or review an explorer's accessibility, WCAG compliance, security or code quality, or to re-run those checks after fixes.
 ---
 
 # Explorer checks
@@ -159,6 +159,9 @@ Then ask what to do next. The choices are:
 - **Apply the fixes** (step 7), then come back here with the new report.
 - **Push the report as it stands** and open a PR (step 9), so the owners
   can fix it themselves.
+- **File issues** (step 10): one issue per must-fix item in the explorer's
+  repository, each asked about before it is filed, so the owners can fix
+  them later.
 - **Stop.** The report stays on this machine, and nothing has changed in
   the explorer's repository.
 
@@ -286,82 +289,89 @@ The PR body gives the status line, the summary table, and the number of
 must-fix items per check, lists the fixes applied, and links the report
 file.
 
-## 10. Hand over
+## 10. File issues (only on a yes, one at a time)
+
+When the user wants issues rather than, or as well as, a pull request:
+
+1. **Ask which repository** if it is not obvious, and give its full URL.
+   Issues go to the repository the owners work in, not to a mirror.
+2. **Ask about each must-fix item separately**, with AskUserQuestion (up to
+   four at a time): show the title and a one-line summary of the body.
+   Options: **File it**, **Skip**. File only the ones the user approves.
+3. **Labels.** Every issue gets `checker`, `bug` and `fix`. Create any that
+   are missing first:
+
+   ```bash
+   gh label create checker --repo <owner>/<repo> --color 5319E7 --description "Found by the explorer checkers"
+   gh label create fix --repo <owner>/<repo> --color 0E8A16 --description "Has a recommended fix ready to apply"
+   ```
+
+   (`bug` exists in every new repository.)
+4. **Body**, in this order:
+   - **Where**: the file and line, or the page and element.
+   - **What is wrong**, in plain words, with the evidence: the measured
+     value, the code line, what was tested.
+   - **Fix**: the exact change, as code where it helps.
+   - The category: accessibility (with the WCAG criterion), security (with
+     the OWASP Top 10:2025 category and ASVS chapter) or code validity.
+   - **`## Instructions for Claude`**, for whoever picks the issue up with
+     Claude:
+
+     ```markdown
+     ## Instructions for Claude
+
+     When someone asks you to work on this issue:
+
+     1. **Overview first.** Before changing anything, tell the person in two or three plain sentences what is wrong, who it affects and where it is (<file and line>).
+     2. **Then how to fix it.** Describe the change in the **Fix** section above, file and line, and show the exact edit. Ask before applying it.
+     3. **Apply it on a branch**, never on `main`, and open a pull request that closes this issue (`Fixes #<n>`).
+     4. **Check it.** <how to confirm this particular fix: the value to measure, the key to press, the request to send>
+     5. Re-run `/explorer-checks` on the branch so the report confirms the finding is gone.
+     ```
+
+     Fill in the place, the issue number (edit the issue after creating
+     it if needed) and a specific check. Add anything the fixer must know
+     about this repository, such as generated pages or a mirror.
+   - A footer line: found by the accessibility and security checker
+     (with the skill version), the date, and the commit checked.
+
+   ```bash
+   gh issue create --repo <owner>/<repo> --title "…" --body-file <file> --label checker,bug,fix
+   ```
+
+5. Give the user each issue's link.
+
+## 11. Validation report
+
+At the end of every run, write `explorer-validation-report.md` in the
+checkout, beside `security-accessibility-checks.md`, and commit it on the
+local branch. It is the short version for the owners: what was found and
+what kind of problem each is.
+
+- **Header**: the explorer, live URL, repository and commit, date, checker
+  versions, pages checked.
+- **Summary**: a table of must-fix counts by category: **Accessibility**,
+  **Security**, **Code validity**, and **Best practices: missing element**
+  if `/explorer-design-checker` ran (otherwise say it was not checked),
+  with the issue numbers filed for each.
+- **Findings**: one row per item: what it is in a sentence, its category
+  (with the WCAG criterion or OWASP category), where, and the issue link
+  or "not filed".
+- **Looked at, not failing**: what was reviewed and cleared, in a few
+  sentences per check, so a reader knows the passes were checked.
+- **Not decided, for the owners**, and **Could not check**.
+
+It goes out with the pull request, if there is one; otherwise it stays
+local, and say where it is.
+
+## 12. Hand over
 
 End with:
 
-1. The PR link and the status it carries.
+1. The PR link and the status it carries, or the issues filed.
 2. **The review and merge are the owners'.** Tell the user to read the
    diff, check the fixes on the page, and merge, or pass the PR to the
    explorer's owners if that is not them. The report's claim is about the
    commit that was checked; changes before the merge need a re-run.
 3. Anything still open: owner decisions, and what could not be checked.
-
-## 11. Ask for feedback
-
-Every run ends by asking about the checker itself, whether the run passed,
-failed or stopped early. Ask in these words:
-
-> Did you encounter any issues with this tool or suggestions to make it better?
->
-> Suggestion or issue:
->
-> Name:
-
-The name is optional. If the user has nothing to say, or doesn't answer,
-end there.
-
-If they answer, file it as a feedback issue on the checker's repository,
-but first show them exactly what you would file and ask:
-
-- **Title**: `Feedback: ` and a few words from what they said.
-- **Body**, in the same sections the feedback form uses:
-
-  ```markdown
-  ### Your name
-
-  <their name, or _No response_>
-
-  ### What is this?
-
-  <Something went wrong / Feedback or a suggestion / A question>
-
-  ### Your feedback
-
-  <their words, as they gave them>
-
-  ### Which explorer or project were you checking?
-
-  <the explorer's GitHub address>
-
-  ### Skill version
-
-  <the contents of VERSION>
-  ```
-
-Say that it goes to `internetarchivecanada/accessibility-security-checker`,
-which is private: Internet Archive staff can see the issue and their
-name, and nobody else can. Still leave out passwords and tokens, and add
-nothing they did not say. If something in this run went wrong because
-of the checker (a script failed, a check misfired, these instructions
-didn't fit), you may suggest adding a line about it, in your words, marked
-as yours, and only if they agree.
-
-On a yes, file it:
-
-```bash
-gh issue create --repo internetarchivecanada/accessibility-security-checker     --title "Feedback: …" --body-file <file>     --label feedback --assignee Robin-IA
-```
-
-Only the repository's collaborators can set a label or an assignee. If
-GitHub refuses them, file the issue again without `--label` and
-`--assignee`. It still lands in the repository's issues for the
-maintainer. Give the user the issue's link.
-
-If GitHub says the repository is not found, the user is not in the
-`internetarchivecanada` organization. Tell them so, and offer to file it
-on the public source repository, `Robin-IA/ia-explorer-checks`, instead,
-saying that there it will be public. File it there only on a yes.
-
-If they would rather file it themselves, or later, give them the
-[feedback form](https://github.com/internetarchivecanada/accessibility-security-checker/issues/new?template=feedback.yml).
+4. Where the validation report is.
