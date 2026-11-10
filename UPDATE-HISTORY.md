@@ -17,6 +17,22 @@ edited.
   with `sync_mirror.py` after every merge, so both show the same history.
   Each entry says whether the mirror was synced.
 
+## 2026-11-10: Git added to the watch list
+
+**Watch review.** Git's security release of 2026-11-10 (Git 2.56.1 and
+backports to 2.50.2; CVE-2026-111760, recursive clones can run code)
+affects the Git that clones explorers, and the watch did not read Git. The
+watch list now reads Git's security advisories (this PR). Changes the
+advisory calls for are left to the next watch run.
+
+**Changes**
+
+- this PR: watch Git's security advisories.
+
+**VERSION** unchanged (2026.11.10.4): the watch list is not part of the skill.
+
+**Mirror** synced after merge.
+
 ## 2026-11-10
 
 **Watch review.** The weekly run of 2026-11-09 filed #29, #30 and #31; its
