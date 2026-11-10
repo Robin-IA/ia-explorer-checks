@@ -289,6 +289,14 @@ The PR body gives the status line, the summary table, and the number of
 must-fix items per check, lists the fixes applied, and links the report
 file.
 
+**After an explorer design check.** When this skill runs as the last part
+of `/explorer-design-checker`, the branch already carries the design
+fixes and report. Open **one** pull request for both, titled "Explorer
+design, accessibility and security checks", not a second one: its body
+gives both checks' status lines and a table with one row per commit, so
+the owner can revert any single fix with `git revert <commit>`, plus the
+issues it closes and the publishing steps the design checker gives.
+
 ## 10. File issues (only on a yes, one at a time)
 
 When the user wants issues rather than, or as well as, a pull request:
@@ -311,6 +319,15 @@ When the user wants issues rather than, or as well as, a pull request:
    ```
 
    (`bug` exists in every new repository.)
+
+   **A suggestion is not a bug.** Anything that is a recommendation rather
+   than a defect (an advisory the user chooses to file, or a repository
+   setting) gets `suggestion` instead of `bug`, a title starting
+   "Suggestion:", and the category "Suggestion":
+
+   ```bash
+   gh label create suggestion --repo <owner>/<repo> --color FBCA04 --description "A recommendation, not a defect: the owner decides"
+   ```
 4. **Body**, in this order:
    - **Where**: the file and line, or the page and element.
    - **What is wrong**, in plain words, with the evidence: the measured
