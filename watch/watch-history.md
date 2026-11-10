@@ -14,6 +14,34 @@ check), the window, and one row per source:
 Issues filed are linked from the row that led to them. Entries are added,
 never edited.
 
+## 2026-11-10: weekly task
+
+Window 2026-11-02 to 2026-11-10.
+
+| Source | Result | Outcome |
+|---|---|---|
+| OWASP Top 10 | read: no commits in the window | none |
+| OWASP ASVS | read: one CI dependency bump (2026-11-04); v5.0.0 still the stable release | none |
+| OWASP AISVS | read: research folders and wiki references removed (2026-11-08), a level fix (2026-11-04); v1.01 still the latest release, and the checklist cites it since #39 | none |
+| OWASP Secure Headers | read: statistics and dashboard syncs only | none |
+| OWASP Cheat Sheet Series | read: since the 2026-11-09 run, obsolete HTTP RFC references replaced with RFC 9110 in the CSRF, Error Handling and Session Management sheets (2026-11-10; the checks cite no RFC) and dependency bumps. The SSRF deny-list change is already in the checklist (#30); the other window commits (Docker, Kubernetes, multi-tenant, MCP, LLM prompt injection, NPM, Node.js CSRF, SQLi and LDAP dedup) do not affect the checks | none |
+| MDN blog feed | read: no entries in the window (newest 2026-06-15) | none |
+| Xygeni: OWASP Top 10 2025 explained | not read: background only, not watched | none |
+| GitHub Advisory Database (pip, npm) | read: 28 pip and 34 npm advisories (GPUStack, compose-lint, GeoNode, fastapi-code-generator, node-forge, mongoose, isomorphic-git, Claude Code's Edit tool and others); none in the explorer stack or the tools the checks run | none |
+| OSV.dev | not read: answers only queries for a named package and version, and none was needed; `js_libraries.py` queries it live | none |
+| Retire.js | read: dojox (2026-11-09) and lodash, next, protobufjs (2026-11-06) updates to `jsrepository.json`, which `js_libraries.py` reads live | none |
+| CISA KEV | read: 13 added. CVE-2026-125350, Google Chromium use-after-free in XML (2026-11-10), is the browser the checks run; the rest (Outlook, Openwave, Cisco BroadWorks, Barracuda, GPUStack, OpenSSH, FreeSwitch, Aspera Faspex, SonicWall, Apple, WordPress core) are not on the explorer stack | [#43](https://github.com/Robin-IA/ia-explorer-checks/issues/43) Raise the Playwright floor to one whose Chromium fixes CVE-2026-125350 |
+| Wordfence | not read: HTTP 202 bot challenge; WordPress only | none |
+| Playwright for Python | read: 1.65.0 (2026-11-09) bundles Chromium 158.0.8127.18; fixed Chrome is 157.0.8103.50, but 158.0.8127.18 was built before CVE-2026-125350 was reported, so not proof of the fix. 1.64.1 bundles 156.0.8078.4, not fixed | covered by [#43](https://github.com/Robin-IA/ia-explorer-checks/issues/43), left open for a decision |
+| Git security advisories | read: GHSA-vp2w-7xxj-jvxr, CVE-2026-111760 (2026-11-10), recursive clones can run code; fixed in 2.56.1 and backports 2.50.2 to 2.55.1, with five more CVEs (unborn HEAD path traversal, merge heap overflow and others). Homebrew's `git` is still 2.56.0 | [#41](https://github.com/Robin-IA/ia-explorer-checks/issues/41) Never clone or update explorer submodules; [#42](https://github.com/Robin-IA/ia-explorer-checks/issues/42) Require Git 2.56.1 or a patched backport in SETUP.md |
+| Mozilla HTTP Observatory | read: dependency bumps only; no release since 1.7.2; no scoring change | none |
+| securityheaders.com | not read: HTTP 403 | none |
+| SSL Labs | not read: a test form with no news; TLS is left to the host | none |
+| axe-core releases | read: 4.14.0 (2026-10-05) is still the latest, and it matches `AXE_VERSION` | none |
+| W3C WAI feed | read: no entries in the window (newest 2026-09-25) | none |
+| WCAG | read: no releases. Since the 2026-11-09 run, a typo fix in the touch target explanation (2026-11-09); F114 for 1.4.13 is covered by #31 | none |
+| `requirements.txt` floors | read: latest html5lib 1.1, playwright 1.65.0, ruff 0.17.4, bandit 1.9.4, pip-audit 2.10.1, pytest 9.2.0; all above the floors | none |
+
 ## 2026-11-10: manual check
 
 After Chrome's 2026-11-09 stable update, which the weekly run of the same
