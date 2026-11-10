@@ -24,6 +24,7 @@ Compare each source against these before deciding a change is needed.
 | Accessibility standard and checklist | `STANDARD` in `scripts/render_report.py`, `references/wcag-manual-review.md` |
 | Header checks | `check_headers` in `scripts/check_security.py` |
 | Credential patterns | `scripts/check_security.py` |
+| The Git that clones explorers | the Git requirement in `SETUP.md`; clone rules in `skills/explorer-checks/references/explorer-repos.md` |
 
 ## Checklist and reference standards
 
@@ -73,7 +74,19 @@ version is not proof of a fix if it was built before the bug was reported.
 When it matters, compare the fixed Chrome version in the advisory with the
 version Playwright lists, and say in the issue which it is.
 
-## Reference scanners for benchmarking
+## Git, which clones the explorers
+
+Every run clones or fetches an explorer repository that is usually not
+ours, with the Git on the machine running the checks. A Git bug in
+cloning, fetching or checkout (a malicious repository, submodule or
+server) reaches the person running the checks, not the explorer. The
+checks never clone with submodules; this source says when that, or the
+Git version SETUP.md asks for, is no longer enough.
+
+| Source | Read | Could change |
+|---|---|---|
+| [Git security advisories](https://github.com/git/git/security/advisories) | `gh api repos/git/git/security-advisories`; for each advisory in the window, its fixed versions (`gh api repos/git/git/tags`) | the minimum Git in SETUP.md (the fixed release, and where to get it when Apple's Command Line Tools Git is older); the clone rules in `explorer-repos.md` when an attack needs something the checks do (submodules, a particular protocol, merging, applying patches) |
+
 
 Not news. The watch reads their changes for scoring rules the checks should
 match.
