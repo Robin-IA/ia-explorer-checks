@@ -4,6 +4,13 @@
 > using the Claude app's **Code** tab, type `/explorer-checks` and your
 > project's GitHub address)
 
+> **Checking an explorer? Start with the
+> [explorer design checker](https://github.com/internetarchivecanada/explorer-design-checker)**
+> (`/explorer-design-checker`). It checks the explorer against the
+> explorer best practices first, then runs this checker last, after the
+> design fixes are in. This checker also stands alone: run it by itself
+> on any web project, or to re-check an explorer after a change.
+
 **The accessibility and security checker looks at your website, such as
 an explorer, and tells you whether its code is valid, whether it is
 secure, and whether people using a keyboard, a screen reader or a small

@@ -6,6 +6,13 @@
 > is a read-only **mirror** of it, following its `main`: open pull requests
 > on the Robin-IA source, not on the mirror.
 
+> **Checking an explorer? Start with the
+> [explorer design checker](https://github.com/internetarchivecanada/explorer-design-checker)**
+> (`/explorer-design-checker`). It checks the explorer against the
+> explorer best practices first, then runs this checker last, after the
+> design fixes are in. This checker also stands alone: run it by itself
+> on any web project, or to re-check an explorer after a change.
+
 A Claude Code skill that checks a web project for **code validity**,
 **security** and **accessibility** (WCAG 2.2 Level AA). It writes the
 result as a report, shows you what needs fixing, and asks before it
