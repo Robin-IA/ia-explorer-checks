@@ -14,6 +14,31 @@ check), the window, and one row per source:
 Issues filed are linked from the row that led to them. Entries are added,
 never edited.
 
+## 2026-11-09: weekly task
+
+Window 2026-11-01 to 2026-11-09.
+
+| Source | Result | Outcome |
+|---|---|---|
+| OWASP Top 10 | read: no commits in the window | none |
+| OWASP ASVS | read: one CI dependency bump; v5.0.0 still the stable release | none |
+| OWASP AISVS | read: v1.01 (2026-10-16) is current, and the checklist and README cite 1.0. Chapter titles are the same in both versions. Window commits removed research folders | [#29](https://github.com/Robin-IA/ia-explorer-checks/issues/29) Cite AISVS 1.01 instead of 1.0 for the AI checklist items |
+| OWASP Secure Headers | read: statistics syncs only | none |
+| OWASP Cheat Sheet Series | read: SSRF deny-list adds IPv4-mapped IPv6 and NAT64 ranges and says to normalize before comparing (2026-11-08). XSS and SameSite edits of 2026-11-01 were already covered by #7 and #8; "escape every rendered value by default" is already in the checklist. Node.js CSRF, NPM "project you did not write", Docker, Kubernetes, multi-tenant, MCP, LLM prompt injection and SQLi/LDAP dedup do not affect the checks | [#30](https://github.com/Robin-IA/ia-explorer-checks/issues/30) Normalize IPv4-mapped and NAT64 addresses in the SSRF checklist item |
+| MDN blog feed | read: no entries in the window (newest 2026-06-15) | none |
+| GitHub Advisory Database (pip, npm) | read: 5 pip and 8 npm advisories (GeoNode, stanza, banks, elo, sd-jwt and others); none in the explorer stack | none |
+| OSV.dev | not read: answers only queries for a named package and version, and none was needed. `js_libraries.py` already queries it live | none |
+| Retire.js | read: new lodash, next and protobufjs advisories (2026-11-06) and a dojox split. `js_libraries.py` reads `jsrepository.json` live, so they are picked up without a change | none |
+| CISA KEV | read: three added (SonicWall SSLVPN, Apple CVE-2024-27834, WordPress core); none on the explorer stack the checks cover | none |
+| Wordfence | not read: HTTP 202 bot challenge; WordPress only | none |
+| Mozilla HTTP Observatory | read: dependency bumps only; no release since 1.7.2; no scoring change | none |
+| securityheaders.com | not read: HTTP 403 | none |
+| SSL Labs | not read: a test form with no news; TLS is left to the host | none |
+| axe-core releases | read: 4.14.0 (2026-10-05) is still the latest, and it matches `AXE_VERSION` | none |
+| W3C WAI feed | read: no entries in the window (newest 2026-09-25) | none |
+| WCAG | read: no releases. Commits on 2026-11-02 add failure technique F114 for 1.4.13 Content on hover or focus, which the manual checklist does not cover. F13 now also counts as a 1.3.3 failure. Understanding edits to 2.5.8, 3.3.1, 3.3.2, 3.3.9 and 4.1.2 | [#31](https://github.com/Robin-IA/ia-explorer-checks/issues/31) Add 1.4.13 Content on hover or focus to the manual WCAG checklist |
+| `requirements.txt` floors | read: latest html5lib 1.1, playwright 1.64.1, ruff 0.17.4, bandit 1.9.4, pip-audit 2.10.1, pytest 9.2.0; all above the floors | none |
+
 ## 2026-11-05: manual check
 
 While writing the README's list of sources. Not a full watch: only the
