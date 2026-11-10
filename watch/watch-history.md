@@ -14,6 +14,16 @@ check), the window, and one row per source:
 Issues filed are linked from the row that led to them. Entries are added,
 never edited.
 
+## 2026-11-10: manual check
+
+After Chrome's 2026-11-09 stable update, which the weekly run of the same
+day did not read. Not a full watch: only the sources below.
+
+| Source | Result | Outcome |
+|---|---|---|
+| [Chrome Releases: Stable Channel Update for Desktop](https://chromereleases.googleblog.com/2026/11/stable-channel-update-for-desktop_018223192.html), 2026-11-09 | read (in a browser: the page's text is built by script and a plain fetch returns none): 157.0.8103.50, 9 security fixes, 7 high; Google says CVE-2026-125350 (use after free in XML) is exploited in the wild | The checks ran Chromium 156.0.8078.4 (Playwright 1.64.1), before the fix. Nothing watched the checks' own browser, so [sources.md](sources.md) now reads Playwright releases and counts Chromium entries in the CISA feed |
+| Playwright for Python releases | read: 1.65.0 (2026-11-09) bundles Chromium 158.0.8127.18, built before CVE-2026-125350 was reported (2026-11-06), so it is not proof of the fix | none yet; the next weekly run reads this source |
+
 ## 2026-11-09: weekly task
 
 Window 2026-11-01 to 2026-11-09.

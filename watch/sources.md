@@ -18,6 +18,7 @@ Compare each source against these before deciding a change is needed.
 |---|---|
 | axe-core version | `AXE_VERSION` in `skills/explorer-checks/scripts/check_browser.py` |
 | Tool versions (html5lib, playwright, ruff, bandit, pip-audit) | `requirements.txt` |
+| The browser the browser check runs | the Chromium bundled with the installed `playwright` (`python3 -m playwright install chromium`), not the user's Chrome |
 | OWASP Top 10 and ASVS tags per rule | `OWASP` table in `skills/explorer-checks/scripts/common.py` |
 | Security checklist, including the AISVS version and chapters on its AI items | `skills/explorer-checks/references/security-review.md` |
 | Accessibility standard and checklist | `STANDARD` in `scripts/render_report.py`, `references/wcag-manual-review.md` |
@@ -41,7 +42,9 @@ Compare each source against these before deciding a change is needed.
 Explorers are static sites and small Flask apps. An advisory matters when it
 touches something an explorer is likely to use (jQuery, D3, Leaflet,
 Chart.js, Bootstrap, Flask, Werkzeug, Jinja2, requests, SQLite) or a tool the
-checks run. Not every advisory is a change to the checks: one that pip-audit
+checks run. **The checks' own browser counts:** the browser check loads
+explorer pages, and what they pull in, in Chromium, so an exploited Chromium
+or Chrome bug is in scope even though no explorer ships a browser. Not every advisory is a change to the checks: one that pip-audit
 already reports needs nothing.
 
 | Source | Read | Could change |
@@ -49,8 +52,26 @@ already reports needs nothing.
 | [GitHub Advisory Database](https://github.com/advisories) | `gh api "/advisories?ecosystem=pip&published=>=<date>"` and `ecosystem=npm` | a library the checks should flag that pip-audit does not see, such as front-end JavaScript loaded from a CDN |
 | [OSV.dev](https://osv.dev/) ([API](https://google.github.io/osv.dev/api/)) | `POST https://api.osv.dev/v1/query` for a named package and version | the same, for a package the GitHub feed does not cover |
 | [Retire.js](https://github.com/RetireJS/retire.js) | `gh api repos/RetireJS/retire.js/commits?path=repository/jsrepository.json` | outdated JavaScript libraries; whether the checks should run it on vendored scripts |
-| [CISA Known Exploited Vulnerabilities](https://www.cisa.gov/known-exploited-vulnerabilities-catalog) | [JSON feed](https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json), entries with `dateAdded` in the window | anything on an explorer's stack that is being exploited now |
+| [CISA Known Exploited Vulnerabilities](https://www.cisa.gov/known-exploited-vulnerabilities-catalog) | [JSON feed](https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json), entries with `dateAdded` in the window. Include entries whose `product` is Chromium or Chrome (vendor Google) | anything on an explorer's stack that is being exploited now; for a Chromium entry, whether the Playwright the checks pin has a Chromium with the fix (see [The checks' own browser](#the-checks-own-browser)) |
 | [Wordfence Intelligence](https://www.wordfence.com/products/wordfence-intelligence/) ([data feed](https://www.wordfence.com/?p=32739)) | the page, if it loads | WordPress only. No explorer uses WordPress yet; record that it was skipped unless one does |
+
+## The checks' own browser
+
+The browser check drives the Chromium build that Playwright bundles, not an
+installed Chrome, so its engine changes only when Playwright does. Chrome's
+weekly stable releases are not watched: most are security fixes that change
+nothing in the checks. An exploited Chromium bug reaches the watch through
+the CISA feed above, and this source says whether a Playwright release
+brings a Chromium with the fix.
+
+| Source | Read | Could change |
+|---|---|---|
+| [Playwright for Python](https://github.com/microsoft/playwright-python/releases) | `gh api repos/microsoft/playwright-python/releases`; each release's notes list its **Browser Versions** | the `playwright` floor in `requirements.txt` and the install step in SETUP.md, when a release brings a Chromium the checks need (a security fix, or one an exploited bug calls for); breaking changes to what the browser check calls |
+
+A Chromium release only fixes a bug from its build onward: a newer major
+version is not proof of a fix if it was built before the bug was reported.
+When it matters, compare the fixed Chrome version in the advisory with the
+version Playwright lists, and say in the issue which it is.
 
 ## Reference scanners for benchmarking
 
