@@ -263,13 +263,19 @@ reads the sources in
 [watch/sources.md](watch/sources.md): OWASP standards, vulnerability feeds,
 reference scanners, axe-core and WCAG. It compares what changed against what
 the checks pin and cite. Each change the checks need becomes an issue
-labelled `watch`. The task does not edit the checks itself. To watch
+labelled `watch`. The task then makes the changes those issues call
+for, through a pull request it merges, and syncs the mirror. To watch
 something else, add it to that file.
 
 [watch/watch-history.md](watch/watch-history.md) records each run: the
 date, the window, every source read or not read, and the issues that came
-of it. The task adds its entry in a pull request of its own, and manual
-checks are recorded there too.
+of it. The task adds its entry in a pull request of its own and merges it,
+and manual checks are recorded there too.
+
+[UPDATE-HISTORY.md](UPDATE-HISTORY.md) is the short record for everyone:
+that each week's watch review happened, and every change made to the
+checks since, with its pull request, the issues it closed, the version, and
+the mirror sync.
 
 Installing the skill does not install the watch. You get the checks as
 of your last pull, so pull and re-run `install.py` to pick up what the
