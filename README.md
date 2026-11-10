@@ -188,7 +188,7 @@ follows. In short:
 7. **Push and open the PR** when you say so, then hand over for review
    and merge.
 8. **Or file issues** instead of a PR: one per must-fix item, each asked
-   about first, labelled `checker`, `bug` and `fix`, with an
+   about first, labelled `checker`, `bug`, `fix` and `accessibilitysec`, with an
    **Instructions for Claude** section for whoever fixes it.
 9. **Write a validation report**, `explorer-validation-report.md`: what
    each finding is, and whether it is accessibility, security, code

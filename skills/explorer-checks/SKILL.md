@@ -1,6 +1,6 @@
 ---
 name: explorer-checks
-description: Check an Internet Archive explorer (a Wayback or archive.org collection explorer such as federal-pandemic-record-covid19) for code validity, code security and accessibility against WCAG 2.2 AA. Given the explorer's GitHub URL or live URL, it runs real tools (html5lib, ruff, bandit, pip-audit, axe-core in headless Chromium), reviews the code against written checklists, and writes security-accessibility-checks.md, which lists every open item with a recommended fix. It works in a local checkout and shows the user what needs fixing before anything leaves the machine; it applies fixes, pushes a branch, opens a pull request or files issues (labelled checker, bug and fix, each with Instructions for Claude) only after asking about each, and never merges. Every run ends with explorer-validation-report.md, which says whether each finding is accessibility, security, code validity or a missing best-practice element. Re-run at any time; once all three checks pass it adds, with permission, a dated accessibility statement to the explorer's page; security and code validity results are never published on the page. Use whenever someone asks to check, audit or review an explorer's accessibility, WCAG compliance, security or code quality, or to re-run those checks after fixes.
+description: Check an Internet Archive explorer (a Wayback or archive.org collection explorer such as federal-pandemic-record-covid19) for code validity, code security and accessibility against WCAG 2.2 AA. Given the explorer's GitHub URL or live URL, it runs real tools (html5lib, ruff, bandit, pip-audit, axe-core in headless Chromium), reviews the code against written checklists, and writes security-accessibility-checks.md, which lists every open item with a recommended fix. It works in a local checkout and shows the user what needs fixing before anything leaves the machine; it applies fixes, pushes a branch, opens a pull request or files issues (labelled checker, bug, fix and accessibilitysec, each with Instructions for Claude) only after asking about each, and never merges. Every run ends with explorer-validation-report.md, which says whether each finding is accessibility, security, code validity or a missing best-practice element. Re-run at any time; once all three checks pass it adds, with permission, a dated accessibility statement to the explorer's page; security and code validity results are never published on the page. Use whenever someone asks to check, audit or review an explorer's accessibility, WCAG compliance, security or code quality, or to re-run those checks after fixes.
 ---
 
 # Explorer checks
@@ -289,6 +289,14 @@ The PR body gives the status line, the summary table, and the number of
 must-fix items per check, lists the fixes applied, and links the report
 file.
 
+**After an explorer design check.** When this skill runs as the last part
+of `/explorer-design-checker`, the branch already carries the design
+fixes and report. Open **one** pull request for both, titled "Explorer
+design, accessibility and security checks", not a second one: its body
+gives both checks' status lines and a table with one row per commit, so
+the owner can revert any single fix with `git revert <commit>`, plus the
+issues it closes and the publishing steps the design checker gives.
+
 ## 10. File issues (only on a yes, one at a time)
 
 When the user wants issues rather than, or as well as, a pull request:
@@ -298,15 +306,28 @@ When the user wants issues rather than, or as well as, a pull request:
 2. **Ask about each must-fix item separately**, with AskUserQuestion (up to
    four at a time): show the title and a one-line summary of the body.
    Options: **File it**, **Skip**. File only the ones the user approves.
-3. **Labels.** Every issue gets `checker`, `bug` and `fix`. Create any that
+3. **Labels.** Every issue gets `checker`, `bug`, `fix` and
+   **`accessibilitysec`**, which marks it as found by this checker
+   (accessibility, security or code validity); the explorer design
+   checker labels its issues `design` instead. Create any that
    are missing first:
 
    ```bash
    gh label create checker --repo <owner>/<repo> --color 5319E7 --description "Found by the explorer checkers"
    gh label create fix --repo <owner>/<repo> --color 0E8A16 --description "Has a recommended fix ready to apply"
+   gh label create accessibilitysec --repo <owner>/<repo> --color D93F0B --description "Accessibility, security or code validity, found by the accessibility and security checker"
    ```
 
    (`bug` exists in every new repository.)
+
+   **A suggestion is not a bug.** Anything that is a recommendation rather
+   than a defect (an advisory the user chooses to file, or a repository
+   setting) gets `suggestion` instead of `bug`, a title starting
+   "Suggestion:", and the category "Suggestion":
+
+   ```bash
+   gh label create suggestion --repo <owner>/<repo> --color FBCA04 --description "A recommendation, not a defect: the owner decides"
+   ```
 4. **Body**, in this order:
    - **Where**: the file and line, or the page and element.
    - **What is wrong**, in plain words, with the evidence: the measured
@@ -336,7 +357,7 @@ When the user wants issues rather than, or as well as, a pull request:
      (with the skill version), the date, and the commit checked.
 
    ```bash
-   gh issue create --repo <owner>/<repo> --title "…" --body-file <file> --label checker,bug,fix
+   gh issue create --repo <owner>/<repo> --title "…" --body-file <file> --label checker,bug,fix,accessibilitysec
    ```
 
 5. Give the user each issue's link.
