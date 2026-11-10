@@ -262,8 +262,10 @@ def render(meta, findings, cleared, review, prev):
 
 
 def _day(iso):
+    """A date in US English, "November 9, 2026", as the explorer best
+    practices ask for everything an explorer publishes."""
     d = datetime.date.fromisoformat(iso)
-    return f"{d.day} {d:%B %Y}"
+    return f"{d:%B} {d.day}, {d.year}"
 
 
 def _cell(s):

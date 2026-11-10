@@ -93,7 +93,7 @@ def main():
     day = datetime.date.fromisoformat(state["date"])
     position = args.position or "bottom"
     note = NOTE.format(start=START, end=END, standard=STANDARD, also=ALSO_MET,
-                       iso=day.isoformat(), human=f"{day.day} {day:%B %Y}",
+                       iso=day.isoformat(), human=f"{day:%B} {day.day}, {day.year}",
                        size=SIZE,
                        margin="0 0 1em" if position == "top" else "1em 0 0")
 

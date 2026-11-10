@@ -55,7 +55,7 @@ Each run produces three things:
 - **A statement on the explorer's page**, once all three checks pass:
 
   > Meets WCAG 2.2 Level AA accessibility (and WCAG 2.1 AA and 2.0 AA),
-  > checked 3 November 2026 by automated tests and manual review.
+  > checked November 3, 2026 by automated tests and manual review.
 
   The statement names the accessibility standards and the date checked.
   Security and code validity must pass too, but are not published on the
