@@ -17,6 +17,25 @@ edited.
   with `sync_mirror.py` after every merge, so both show the same history.
   Each entry says whether the mirror was synced.
 
+## 2026-11-11: the watch moves to GitHub Actions
+
+**Watch review.** No review this entry. The weekly watch now runs as a
+GitHub Actions workflow instead of a scheduled task on the maintainer's
+computer: Mondays at 05:00 UTC, and from the Actions tab at any time. Its
+instructions moved into the repository (`watch/weekly-watch-prompt.md`).
+The internetarchivecanada mirror copies `main` by its own workflow every
+six hours.
+
+**Changes**
+
+- this PR: `.github/workflows/weekly-watch.yml`,
+  `.github/workflows/mirror.yml`, `watch/weekly-watch-prompt.md`; README.
+
+**VERSION** unchanged (2026.11.10.5): the skill did not change.
+
+**Mirror** synced by hand, since the mirror workflow cannot copy
+workflow files.
+
 ## 2026-11-10: weekly watch
 
 **Watch review.** Weekly run, window 2026-11-02 to 2026-11-10: three
