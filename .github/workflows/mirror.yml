@@ -1,0 +1,75 @@
+# Copy Robin-IA/ia-explorer-checks main to this mirror,
+# internetarchivecanada/accessibility-security-checker.
+#
+# Runs on the mirror only, every six hours and from the Actions tab.
+# It reads the public source, so it needs no token of anyone's. The same
+# conditions as sync_mirror.py: the mirror has no commits of its own, and
+# the source's main compiles and passes its tests.
+#
+# GitHub does not let a workflow's own token change files under
+# .github/workflows. When the source changes a workflow, this job stops
+# and says so; sync that change by hand with sync_mirror.py.
+
+name: Mirror
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mirror
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    if: github.repository == 'internetarchivecanada/accessibility-security-checker'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fetch the source
+        id: src
+        run: |
+          git fetch --no-tags https://github.com/Robin-IA/ia-explorer-checks.git main
+          src=$(git rev-parse FETCH_HEAD)
+          echo "sha=$src" >> "$GITHUB_OUTPUT"
+          if [ "$src" = "$(git rev-parse HEAD)" ]; then
+            echo "Mirror already at $src."
+            echo "behind=0" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if ! git merge-base --is-ancestor HEAD "$src"; then
+            echo "::error::The mirror has commits the source does not. Nothing pushed; compare them by hand."
+            exit 1
+          fi
+          if [ -n "$(git diff --name-only HEAD "$src" -- .github/workflows)" ]; then
+            echo "::error::The source changed a workflow file, which this job cannot copy. Run sync_mirror.py by hand."
+            exit 1
+          fi
+          echo "behind=$(git rev-list --count HEAD.."$src")" >> "$GITHUB_OUTPUT"
+
+      - name: Test the source
+        if: steps.src.outputs.behind != '0'
+        run: |
+          git checkout -q ${{ steps.src.outputs.sha }}
+          python -m pip install -q -r requirements.txt
+          python -m compileall -q .
+          python -m pytest -q tests
+
+      - name: Push
+        if: steps.src.outputs.behind != '0'
+        run: |
+          git push origin ${{ steps.src.outputs.sha }}:refs/heads/main
+          echo "Pushed ${{ steps.src.outputs.sha }} (${{ steps.src.outputs.behind }} commits)."

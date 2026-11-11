@@ -258,18 +258,25 @@ version and cited standard lives in the code.
 
 ## Keeping the checks current
 
-Every Monday, a scheduled task in the maintainer's Claude desktop app
-reads the sources in
-[watch/sources.md](watch/sources.md): OWASP standards, vulnerability feeds,
-reference scanners, axe-core and WCAG. It compares what changed against what
-the checks pin and cite. Each change the checks need becomes an issue
-labelled `watch`. The task then makes the changes those issues call
-for, through a pull request it merges, and syncs the mirror. To watch
-something else, add it to that file.
+Every Monday, a GitHub Actions workflow
+([weekly-watch.yml](.github/workflows/weekly-watch.yml)) has Claude read
+the sources in [watch/sources.md](watch/sources.md): OWASP standards,
+vulnerability and Git advisories, reference scanners, the checks' own
+browser, axe-core and WCAG. It compares what changed against what the
+checks pin and cite. Each change the checks need becomes an issue labelled
+`watch`. The run then makes the changes those issues call for, through a
+pull request it merges. Its instructions are in
+[watch/weekly-watch-prompt.md](watch/weekly-watch-prompt.md). To watch
+something else, add it to `sources.md`.
+
+To run it now: **Actions → Weekly watch → Run workflow**. The
+internetarchivecanada mirror copies `main` every six hours by its own
+workflow ([mirror.yml](.github/workflows/mirror.yml)), which reads this
+public repository and needs no token.
 
 [watch/watch-history.md](watch/watch-history.md) records each run: the
 date, the window, every source read or not read, and the issues that came
-of it. The task adds its entry in a pull request of its own and merges it,
+of it. The run adds its entry in a pull request of its own and merges it,
 and manual checks are recorded there too.
 
 [UPDATE-HISTORY.md](UPDATE-HISTORY.md) is the short record for everyone:
