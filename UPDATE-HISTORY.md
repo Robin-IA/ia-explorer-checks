@@ -17,6 +17,22 @@ edited.
   with `sync_mirror.py` after every merge, so both show the same history.
   Each entry says whether the mirror was synced.
 
+## 2026-11-14: Last updated in the footer
+
+**Watch review.** No review this entry.
+
+**Changes**
+
+- this PR: a new explorer best practice, that every explorer's footer
+  says when it was last built, with date, time and zone, written at build
+  time (`<time datetime="2026-11-14T11:51-05:00">`). `check_validity.py`
+  reports a front page (`index.html`) without one as a validity
+  **advisory**, `practice:last-updated`, which never blocks a pass. A
+  missing line is not a WCAG failure, so it is not an accessibility
+  item. README and SKILL.md say so; five test cases.
+
+**VERSION** 2026.11.14.1. **Mirror** to sync after merge.
+
 ## 2026-11-11: the watch moves to GitHub Actions
 
 **Watch review.** No review this entry. The weekly watch now runs as a

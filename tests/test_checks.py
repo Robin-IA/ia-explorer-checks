@@ -64,6 +64,40 @@ def test_validity_finds_markup_faults(site, tmp_path):
     assert "link:missing-local" in found
 
 
+def last_updated(tmp_path, footer):
+    root = tmp_path / "lu"
+    root.mkdir()
+    (root / "index.html").write_text(
+        GOOD_PAGE.replace("<footer><p>Footer</p></footer>", footer),
+        encoding="utf-8")
+    out = tmp_path / "lu.json"
+    run("check_validity.py", root, "--out", out)
+    return [f for f in read_findings(out)[1]
+            if f.rule == "practice:last-updated"]
+
+
+def test_last_updated_with_time_and_zone_is_quiet(tmp_path):
+    assert not last_updated(tmp_path, (
+        '<footer><p>Last updated <time datetime="2026-11-14T11:51-05:00">'
+        "November 14, 2026, 11:51 AM EST</time></p></footer>"))
+
+
+@pytest.mark.parametrize("footer", [
+    "<footer><p>Footer</p></footer>",
+    ('<footer><p>Last updated <time datetime="2026-11-14">November 14, '
+     "2026</time></p></footer>"),
+    ('<footer><p>Last updated <time datetime="2026-11-14T11:51">November '
+     "14, 2026, 11:51 AM</time></p></footer>"),
+    "",
+])
+def test_last_updated_missing_is_advisory_only(tmp_path, footer):
+    found = last_updated(tmp_path, footer)
+    assert len(found) == 1
+    assert found[0].check == "validity"
+    assert found[0].status == "advisory"
+    assert "build time" in found[0].fix
+
+
 def test_security_finds_secret_and_sink(site, tmp_path):
     out = tmp_path / "s.json"
     run("check_security.py", site, "--out", out)
@@ -416,3 +450,11 @@ def test_print_gives_the_snippet_and_where_without_changing_the_page(tmp_path):
     # With a note already there, it says which lines to replace.
     out = run(*note, "--print").stdout
     assert out.startswith(f"Replace lines {line} to ")
+
+
+def test_last_updated_ignores_an_accessibility_notes_date(tmp_path):
+    found = last_updated(tmp_path, (
+        '<footer><p>Meets WCAG 2.2 Level AA, checked <time datetime="2026-11-12">'
+        "12 November 2026</time>.</p></footer>"))
+    assert len(found) == 1
+    assert "No \"Last updated\" date and time" in found[0].title
