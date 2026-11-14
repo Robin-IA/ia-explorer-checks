@@ -450,3 +450,11 @@ def test_print_gives_the_snippet_and_where_without_changing_the_page(tmp_path):
     # With a note already there, it says which lines to replace.
     out = run(*note, "--print").stdout
     assert out.startswith(f"Replace lines {line} to ")
+
+
+def test_last_updated_ignores_an_accessibility_notes_date(tmp_path):
+    found = last_updated(tmp_path, (
+        '<footer><p>Meets WCAG 2.2 Level AA, checked <time datetime="2026-11-12">'
+        "12 November 2026</time>.</p></footer>"))
+    assert len(found) == 1
+    assert "No \"Last updated\" date and time" in found[0].title

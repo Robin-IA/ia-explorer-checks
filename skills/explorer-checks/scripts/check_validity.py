@@ -49,6 +49,7 @@ HTML_FIX = ("Correct the markup so it parses without recovery; browsers "
 # A <time datetime> with a time of day and a zone: 2026-11-14T11:51-05:00.
 STAMP = re.compile(r"\d{4}-\d\d-\d\d[T ]\d\d:\d\d(:\d\d(\.\d+)?)?"
                    r"(Z|[+-]\d\d:?\d\d)")
+LAST_UPDATED = re.compile(r"\blast (updated|built|rebuilt)\b", re.I)
 LAST_UPDATED_FIX = (
     "Write the line into the footer at build time, not by script, so it "
     "shows even if JavaScript fails: <p>Last updated <time "
@@ -119,7 +120,10 @@ def check_last_updated(root, findings):
             continue
         if not footers:
             title = "No footer, so no \"Last updated\" line"
-        elif stamps:
+        elif stamps and any(LAST_UPDATED.search(" ".join(f.itertext()))
+                            for f in footers):
+            # Only when the footer says "Last updated": a date-only <time>
+            # on its own is usually the accessibility note's checked date.
             title = (f"The footer's <time datetime=\"{stamps[0]}\"> has no "
                      "time of day or no time zone")
         else:
