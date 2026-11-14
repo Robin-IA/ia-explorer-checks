@@ -46,6 +46,17 @@ HTML_FIX = ("Correct the markup so it parses without recovery; browsers "
             "repair it silently, but differently, and assistive technology "
             "reads the repaired tree.")
 
+# A <time datetime> with a time of day and a zone: 2026-11-14T11:51-05:00.
+STAMP = re.compile(r"\d{4}-\d\d-\d\d[T ]\d\d:\d\d(:\d\d(\.\d+)?)?"
+                   r"(Z|[+-]\d\d:?\d\d)")
+LAST_UPDATED_FIX = (
+    "Write the line into the footer at build time, not by script, so it "
+    "shows even if JavaScript fails: <p>Last updated <time "
+    "datetime=\"2026-11-14T11:51-05:00\">November 14, 2026, 11:51 AM "
+    "EST</time></p>. Explorers are rebuilt as data arrives, so readers "
+    "need to know how fresh the counts are. A best practice, not a WCAG "
+    "requirement (explorer best practices, Last updated).")
+
 LOCAL_REF = re.compile(r'''\b(?:href|src)\s*=\s*["']([^"'#?]+)''', re.I)
 ID_ATTR = re.compile(r'''\bid\s*=\s*["']([^"']+)["']''', re.I)
 
@@ -88,6 +99,36 @@ def check_html(root, findings):
             else:
                 seen[ident] = line_of(text, m.start())
         check_local_refs(root, path, text, findings)
+
+
+def check_last_updated(root, findings):
+    """Each front page (index.html) says in its footer, in the HTML as
+    built, when it was last updated: a <time datetime> with a time and a
+    zone. Advisory: a best practice, never a reason to fail."""
+    for path in repo_files(root, {".html", ".htm"}):
+        if path.name.lower() not in ("index.html", "index.htm"):
+            continue
+        text = read_text(path)
+        if text is None or "{%" in text or "{{" in text:
+            continue
+        doc = html5lib.parse(text, namespaceHTMLElements=False)
+        footers = list(doc.iter("footer"))
+        stamps = [(t.get("datetime") or "").strip()
+                  for f in footers for t in f.iter("time")]
+        if any(STAMP.fullmatch(d) for d in stamps):
+            continue
+        if not footers:
+            title = "No footer, so no \"Last updated\" line"
+        elif stamps:
+            title = (f"The footer's <time datetime=\"{stamps[0]}\"> has no "
+                     "time of day or no time zone")
+        else:
+            title = ("No \"Last updated\" date and time in the footer's "
+                     "HTML")
+        findings.append(Finding(
+            "validity", "advisory", "practice:last-updated", title,
+            where=rel(root, path), fix=LAST_UPDATED_FIX,
+            source="explorer-checks"))
 
 
 def check_local_refs(root, path, text, findings):
@@ -191,6 +232,7 @@ def main():
     root = pathlib.Path(args.repo).resolve()
     findings = []
     check_html(root, findings)
+    check_last_updated(root, findings)
     check_json(root, findings)
     check_python(root, findings)
     check_tests(root, findings)

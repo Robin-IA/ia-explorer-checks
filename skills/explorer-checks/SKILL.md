@@ -9,7 +9,12 @@ Three checks, one report, re-run until it passes:
 
 1. **Code validity**: the HTML parses, JSON loads, Python lints clean of
    real errors, the project's own tests pass, local links resolve, and the
-   page loads without JavaScript errors or failed requests.
+   page loads without JavaScript errors or failed requests. One advisory
+   rides along: each front page's footer should say when it was last
+   updated, as a `<time datetime>` with date, time and zone written at
+   build time (`practice:last-updated`). It is an explorer best practice,
+   not a WCAG requirement, so it never blocks a pass and is never
+   reported as accessibility.
 2. **Code security**: no credentials in the repository, every place a
    string becomes markup has been traced, dependencies are pinned and have
    no known vulnerabilities, the Python passes bandit, and the checklist in
@@ -378,7 +383,9 @@ what kind of problem each is.
   with the issue numbers filed for each.
 - **Findings**: one row per item: what it is in a sentence, its category
   (with the WCAG criterion or OWASP category), where, and the issue link
-  or "not filed".
+  or "not filed". The `practice:last-updated` advisory, if listed, is
+  **Best practices: missing element**, not code validity or
+  accessibility.
 - **Looked at, not failing**: what was reviewed and cleared, in a few
   sentences per check, so a reader knows the passes were checked.
 - **Not decided, for the owners**, and **Could not check**.
