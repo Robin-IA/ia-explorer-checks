@@ -27,7 +27,8 @@ to do yourself if you'd rather.
 
 | Software | Version | Why |
 |---|---|---|
-| Xcode Command Line Tools | any | git and the basic tools everything else depends on |
+| Xcode Command Line Tools | any | the basic tools everything else depends on |
+| Git | **2.56.1 or newer** (or a patched backport: 2.50.2, or a later maintenance release of a 2.5x line) | clones the explorers you check, and Git's advisory of 2026-11-10 (CVE-2026-111760 and five others) is fixed from there. Apple's Command Line Tools Git may be older: install Homebrew's |
 | Homebrew | any | installs Python and gh |
 | Python | **3.10 or newer**; 3.12 or newer recommended | runs the checks. Not Apple's own `/usr/bin/python3` |
 | Python packages, in `requirements.txt` | as listed | html5lib, playwright, ruff, bandit, pip-audit, pytest: the tools the checks run |
@@ -78,6 +79,7 @@ it. Open Terminal with **Cmd + Space**, type `Terminal`, and press
 | Xcode Command Line Tools | `xcode-select --install` | `xcode-select -p` prints a path |
 | Homebrew | see the Mac setup guide, 1.2 | `brew --version` |
 | Python from Homebrew | `brew install python` | `which python3` prints `/opt/homebrew/bin/python3` (or `/usr/local/bin/python3` on an Intel Mac), **not** `/usr/bin/python3` |
+| Git 2.56.1 or newer | `brew install git`, then close Terminal and open it again | `git --version` prints 2.56.1 or higher, and `which git` prints `/opt/homebrew/bin/git` (or `/usr/local/bin/git` on an Intel Mac), **not** `/usr/bin/git` |
 | GitHub CLI, signed in | `brew install gh`, then `gh auth login` and `gh auth setup-git` | `gh auth status` says you are logged in |
 | git name and email | `git config --global user.name "Your Name"` and `git config --global user.email "you@archive.org"` | `git config --global user.email` prints it |
 
