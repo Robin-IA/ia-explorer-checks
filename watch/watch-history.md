@@ -14,6 +14,34 @@ check), the window, and one row per source:
 Issues filed are linked from the row that led to them. Entries are added,
 never edited.
 
+## 2026-11-16: weekly task
+
+Window 2026-11-08 to 2026-11-16.
+
+| Source | Result | Outcome |
+|---|---|---|
+| OWASP Top 10 | read: no commits in the window | none |
+| OWASP ASVS | read: no commits; the latest release is tagged 2026-10-26 (`latest`, over v5.0.0 of 2025-05-30), nothing new | none |
+| OWASP AISVS | read: 1.02 development only (10.4.7 and 10.4.22 on MCP servers, Appendix C removed, federated-learning secure-aggregation 4.3.6 and 4.3.7); no release since v1.01 (2026-10-16), which the checklist cites | none |
+| OWASP Secure Headers | read: dashboard syncs only | none |
+| OWASP Cheat Sheet Series | read: 35 commits. Nothing changes a fix the checklist recommends: TLS 1.3 early data and X25519MLKEM768, MFA TOTP window, ReDoS under input validation, nginx `add_header` inheritance, Docker, Kubernetes, multi-tenant and supply-chain wording. The SSRF IPv4-mapped and NAT64 ranges (2026-11-08) are already in the checklist (#30) | none |
+| MDN blog feed | read: no entries in the window (newest 2026-06-15) | none |
+| Xygeni: OWASP Top 10 2025 explained | not read: background only, not watched | none |
+| GitHub Advisory Database (pip, npm) | read: pip advisories for nltk, soupsieve, Pillow, tornado, dnspython, rucio and others; npm for node-forge, mongoose, hono, SvelteKit, Astro, Nuxt, a React Server Components package and others. None is on the explorer stack or in a tool the checks run beyond what pip-audit reports | none |
+| OSV.dev | not read: answers only queries for a named package and version, and none was needed; `js_libraries.py` queries it live | none |
+| Retire.js | read: quill (2026-11-11) and dojox (2026-11-09) updates to `jsrepository.json`, which `js_libraries.py` reads live | none |
+| CISA KEV | read: 12 added with `dateAdded` in the window (UnrealIRCd, Check Point, Outlook, Openwave, Cisco BroadWorks, Barracuda x2, Chromium, GPUStack, OpenSSH, FreeSwitch, Aspera Faspex). The only browser entry is CVE-2026-125350 (2026-11-10), already handled | new information on [#43](https://github.com/Robin-IA/ia-explorer-checks/issues/43) |
+| Wordfence | not read: HTTP 202 bot challenge; WordPress only | none |
+| Playwright for Python | read: 1.65.1 (2026-11-11, Node.js security release, Chromium 158.0.8127.18) and 1.65.2 (2026-11-14, Chromium 159.0.8154.6). 159 is past the fixed Chrome 157.0.8103.50 and was rolled after CVE-2026-125350 was reported | floor raised to 1.65.2; closes [#43](https://github.com/Robin-IA/ia-explorer-checks/issues/43) |
+| Git security advisories | read: no advisory in the window beyond GHSA-vp2w-7xxj-jvxr (2026-11-10), already handled. Homebrew's `git` formula is now 2.56.1 | SETUP.md requires 2.56.1; closes [#42](https://github.com/Robin-IA/ia-explorer-checks/issues/42) |
+| Mozilla HTTP Observatory | read: dependency bumps only; no release since 1.7.2 (2026-10-26); no scoring change | none |
+| securityheaders.com | not read: HTTP 403 | none |
+| SSL Labs | not read: a test form with no news; TLS is left to the host | none |
+| axe-core releases | read: 4.14.0 (2026-10-05) is still the latest and matches `AXE_VERSION`; window commits are dependency bumps and a selector-matching fix | none |
+| W3C WAI feed | read: one entry in the window's reach, 2026-11-10 (authoring tools); none changes the standard named in the report | none |
+| WCAG | read: no releases. Editorial changes to understanding notes (1.4.1, non-text contrast, glossary) and a typo fix (2026-11-09) | none |
+| `requirements.txt` floors | read: latest html5lib 1.1, playwright 1.65.2, ruff 0.17.5, bandit 1.9.4, pip-audit 2.10.1, pytest 9.2.0; all above the floors, `playwright` (floor 1.48) by far | covered by [#43](https://github.com/Robin-IA/ia-explorer-checks/issues/43) |
+
 ## 2026-11-10: weekly task
 
 Window 2026-11-02 to 2026-11-10.
