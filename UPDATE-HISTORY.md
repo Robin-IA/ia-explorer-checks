@@ -17,6 +17,24 @@ edited.
   with `sync_mirror.py` after every merge, so both show the same history.
   Each entry says whether the mirror was synced.
 
+## 2026-11-16: weekly watch
+
+**Watch review.** Run 2026-11-16 (window 2026-11-08 to 2026-11-16), recorded
+in [watch/watch-history.md](watch/watch-history.md). No new issues; new
+information on two open ones: Playwright 1.65.2 bundles Chromium
+159.0.8154.6, rolled after CVE-2026-125350 was reported
+([#43](https://github.com/Robin-IA/ia-explorer-checks/issues/43)), and
+Homebrew's `git` is now 2.56.1
+([#42](https://github.com/Robin-IA/ia-explorer-checks/issues/42)).
+
+**Changes**
+
+- this PR: `SETUP.md` requires Git 2.56.1 or a patched backport and says how
+  to install it (fixes #42); `requirements.txt` raises the `playwright` floor
+  from 1.48 to 1.65.2 (fixes #43).
+
+**VERSION** 2026.11.16.1. **Mirror** to sync after merge.
+
 ## 2026-11-14: Last updated in the footer
 
 **Watch review.** No review this entry.
