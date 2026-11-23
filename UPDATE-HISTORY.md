@@ -17,6 +17,22 @@ edited.
   with `sync_mirror.py` after every merge, so both show the same history.
   Each entry says whether the mirror was synced.
 
+## 2026-11-23: weekly watch
+
+**Watch review.** Run 2026-11-23 (window 2026-11-15 to 2026-11-23), recorded
+in [watch/watch-history.md](watch/watch-history.md) (PR #54). Two issues
+filed: axe-core 4.14.1
+([#52](https://github.com/Robin-IA/ia-explorer-checks/issues/52)) and path
+containment wording after OWASP's new Path Traversal Prevention Cheat Sheet
+([#53](https://github.com/Robin-IA/ia-explorer-checks/issues/53)).
+
+**Changes**
+
+- this PR: `AXE_VERSION` 4.14.0 to 4.14.1 (fixes #52); the security
+  checklist says how to contain paths built from input (fixes #53).
+
+**VERSION** 2026.11.23.1. **Mirror** synced after merge.
+
 ## 2026-11-16: weekly watch
 
 **Watch review.** Run 2026-11-16 (window 2026-11-08 to 2026-11-16), recorded
