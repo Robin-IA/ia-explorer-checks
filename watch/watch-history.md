@@ -14,6 +14,34 @@ check), the window, and one row per source:
 Issues filed are linked from the row that led to them. Entries are added,
 never edited.
 
+## 2026-11-23: weekly task
+
+Window 2026-11-15 to 2026-11-23.
+
+| Source | Result | Outcome |
+|---|---|---|
+| OWASP Top 10 | read: no commits in the window | none |
+| OWASP ASVS | read: Appendix C wording and links (wrapping keys, RFC and FIPS links), funding links. The `latest` release was re-tagged 2026-11-22 over v5.0.0; no chapter names changed | none |
+| OWASP AISVS | read: 1.02 development only (C9.5.8 fail-closed PDP, C2.1.1 locale-independent normalization, C5.1 retire 5.1.1, C9.3 agent skills); no release since v1.01 (2026-10-16), which the checklist cites | none |
+| OWASP Secure Headers | read: two analysis tools added to the list, dashboard syncs | none |
+| OWASP Cheat Sheet Series | read: 26 commits. New Path Traversal Prevention and CORS Security sheets (2026-11-16); Access-Control-Allow-Credentials added to HTTP Headers; Django, PHP, Rails, Docker, Node.js, XML and multi-tenant edits. The path-traversal sheet shows the checklist's "cannot escape their folder" wording is too thin. The CORS sheet was considered and not filed: explorers are same-origin and the checklist has no CORS item to correct | [#53](https://github.com/Robin-IA/ia-explorer-checks/issues/53) |
+| MDN blog feed | read: no entries in the window (newest 2026-06-15) | none |
+| Xygeni: OWASP Top 10 2025 explained | not read: background only, not watched | none |
+| GitHub Advisory Database (pip, npm) | read: pip advisories for NLTK (many), mail-parser, Mistune, Flyto2 Core, CKAN, django-docutils, Jupyter MCP Server and others; npm for Next.js, Nuxt, SvelteKit, Budibase, Etherpad and others. None is on the explorer stack or in a tool the checks run beyond what pip-audit reports | none |
+| OSV.dev | not read: answers only queries for a named package and version, and none was needed; `js_libraries.py` queries it live | none |
+| Retire.js | read: no changes to `jsrepository.json` in the window | none |
+| CISA KEV | read: 9 added with `dateAdded` in the window (Apache Roller, vCenter, SAP NetWeaver, Cisco Expressway, Synology DSM, LiteLLM, REDCap, Apache Axis, Puppet Enterprise). No Chromium or Chrome entry | none |
+| Wordfence | not read: HTTP 202 bot challenge; WordPress only | none |
+| Playwright for Python | read: no release since 1.65.2 (2026-11-14, Chromium 159.0.8154.6), the floor | none |
+| Git security advisories | read: no advisory in the window; the latest is GHSA-vp2w-7xxj-jvxr (2026-11-10), already handled | none |
+| Mozilla HTTP Observatory | read: dependency bumps only; no release since 1.7.2 (2026-10-26) | none |
+| securityheaders.com | not read: HTTP 403 | none |
+| SSL Labs | not read: a test form with no news; TLS is left to the host | none |
+| axe-core releases | read: 4.14.1 (2026-11-16), a patch release: false-positive fixes, `meta-viewport-scale` reports invalid values, absolute and fixed elements stacked correctly. `AXE_VERSION` is 4.14.0 | [#52](https://github.com/Robin-IA/ia-explorer-checks/issues/52) |
+| W3C WAI feed | read: nothing new since the 2026-11-10 entry (feed updated 2026-11-20); none changes the standard named in the report | none |
+| WCAG | read: no releases. Editorial fixes (capitalization, grammar, a PDF technique image) | none |
+| `requirements.txt` floors | read: latest html5lib 1.1, playwright 1.65.2, ruff 0.17.6, bandit 1.9.4, pip-audit 2.10.1; all at or above the floors | none |
+
 ## 2026-11-16: weekly task
 
 Window 2026-11-08 to 2026-11-16.
