@@ -97,7 +97,12 @@ reflected-XSS route on a static site. Check them specifically.
 
 - **Server input is validated** (A05 · V1): query parameters reaching SQL
   use bound parameters, never f-strings. Paths built from input cannot
-  escape their folder (`..`).
+  escape their folder: a name from a request or from harvested data is
+  looked up by ID or allowlist, or the path is resolved
+  (`os.path.realpath`) and checked to be inside the base folder
+  (`os.path.commonpath`; in Flask, `send_from_directory`). Stripping `..`
+  is not a fix, and `os.path.join` drops the base when the second part is
+  an absolute path.
 - **Configuration is safe to serve** (A02 · V13): Flask `debug` is off in
   the served configuration, the secret key comes from the environment, and
   the server listens only where it must (`127.0.0.1` behind a proxy, not
